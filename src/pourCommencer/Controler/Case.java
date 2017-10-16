@@ -2,22 +2,23 @@ package pourCommencer.Controler;
 
 import pourCommencer.Controler.EnvObject;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 public class Case {
 
-    private ArrayList<EnvObject> object;
+    private Set<EnvObject> object;
     public final int x;
     public final int y;
 
     public Case(int x, int y) {
         this.x = x;
         this.y = y;
-        this.object = new ArrayList<EnvObject>();
+        this.object = new HashSet<>();
     }
 
     public Case(Case c){
-        this.object = new ArrayList<>();
+        this.object = new HashSet<>();
         for (EnvObject e :
                 c.object) {
             this.object.add(e);
