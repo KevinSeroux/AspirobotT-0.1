@@ -68,7 +68,7 @@ public class Controler extends Observable implements Runnable, _Controler {
     //TODO peut être un synchronized quelque part ...
     public boolean majEnv(Action a, Case ca) {
             Case c = environnement[ca.x][ca.y];
-            if (a == Action.ASPIRE) {
+            if (a == Action.VACUUM) {
                 if (c.containsEnvObject(EnvObject.DUST)) {
                     nbDirtAspire++;
                     c.removeEnvObject(EnvObject.DUST);
@@ -89,28 +89,28 @@ public class Controler extends Observable implements Runnable, _Controler {
                 }
                 nbAction++;
                 return true;
-            } else if (a == Action.MOVEU) {
+            } else if (a == Action.MOVEUP) {
                 if (c.x == 0) return false;
                 environnement[c.x][c.y].removeEnvObject(EnvObject.ROBOT);
                 environnement[c.x - 1][c.y].addEnvObject(EnvObject.ROBOT);
                 nbAction++;
                 this.setChanged();
                 return true;
-            } else if (a == Action.MOVED) {
+            } else if (a == Action.MOVEDOWN) {
                 if (c.x == manorSize - 1) return false;
                 environnement[c.x][c.y].removeEnvObject(EnvObject.ROBOT);
                 environnement[c.x + 1][c.y].addEnvObject(EnvObject.ROBOT);
                 nbAction++;
                 this.setChanged();
                 return true;
-            } else if (a == Action.MOVEL) {
+            } else if (a == Action.MOVELEFT) {
                 if (c.y == 0) return false;
                 environnement[c.x][c.y].removeEnvObject(EnvObject.ROBOT);
                 environnement[c.x][c.y - 1].addEnvObject(EnvObject.ROBOT);
                 nbAction++;
                 this.setChanged();
                 return true;
-            } else if (a == Action.MOVER) {
+            } else if (a == Action.MOVERIGHT) {
                 if (c.y == manorSize - 1) return false;
                 environnement[c.x][c.y].removeEnvObject(EnvObject.ROBOT);
                 environnement[c.x][c.y + 1].addEnvObject(EnvObject.ROBOT);

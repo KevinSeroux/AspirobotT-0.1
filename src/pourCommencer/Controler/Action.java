@@ -1,10 +1,10 @@
 package pourCommencer.Controler;
 
 public enum Action {
-    ASPIRE,
+    VACUUM,
     GATHER,
-    MOVEU,
-    MOVED,
-    MOVEL,
-    MOVER;
+    MOVEUP,
+    MOVEDOWN,
+    MOVELEFT,
+    MOVERIGHT;
 }

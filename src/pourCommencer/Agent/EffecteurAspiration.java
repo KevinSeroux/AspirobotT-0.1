@@ -16,6 +16,6 @@ public class EffecteurAspiration {
     public void aspirer(Case c){
         c.removeEnvObject(EnvObject.DUST);
         c.removeEnvObject(EnvObject.JEWELRY);
-        controler.majEnv(Action.ASPIRE,c);
+        controler.majEnv(Action.VACUUM,c);
     }
 }

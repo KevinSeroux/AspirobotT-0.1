@@ -52,10 +52,10 @@ public class Robot implements Runnable{
                 aspiration.aspirer(currentCase);
             }
             switch (deplacement.nextInt(4)){
-                case 0 : this.currentCase = mouvement.deplacement(env,currentCase, Action.MOVEU); break;
-                case 1 : this.currentCase = mouvement.deplacement(env,currentCase, Action.MOVEL); break;
-                case 2 : this.currentCase = mouvement.deplacement(env,currentCase, Action.MOVED); break;
-                case 3 : this.currentCase = mouvement.deplacement(env,currentCase, Action.MOVER); break;
+                case 0 : this.currentCase = mouvement.deplacement(env,currentCase, Action.MOVEUP); break;
+                case 1 : this.currentCase = mouvement.deplacement(env,currentCase, Action.MOVELEFT); break;
+                case 2 : this.currentCase = mouvement.deplacement(env,currentCase, Action.MOVEDOWN); break;
+                case 3 : this.currentCase = mouvement.deplacement(env,currentCase, Action.MOVERIGHT); break;
                 default:
                     break;
             }

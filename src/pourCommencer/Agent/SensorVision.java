@@ -26,16 +26,16 @@ public class SensorVision {
     //TODO  je suis pas sur que ca doit se trouver dans cette classe.
     public boolean deplacementPossible(Case env, Action a, int tailleEnv){
         switch (a){
-            case MOVEU:
+            case MOVEUP:
                 if (env.x == 0) return false;
                 return true;
-            case MOVED:
+            case MOVEDOWN:
                 if (env.x == tailleEnv-1) return false;
                 return true;
-            case MOVEL:
+            case MOVELEFT:
                 if (env.y == 0) return false;
                 return true;
-            case MOVER:
+            case MOVERIGHT:
                 if (env.y == tailleEnv-1) return false;
                 return true;
             default:

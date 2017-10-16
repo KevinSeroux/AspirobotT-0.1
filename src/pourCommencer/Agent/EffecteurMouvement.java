@@ -17,19 +17,19 @@ public class EffecteurMouvement {
     public Case deplacement( Case[][] env, Case currentPosition, Action a){
         if (controler.majEnv(a,currentPosition)){
             switch (a){
-                case MOVEU:
+                case MOVEUP:
                     env[currentPosition.x][currentPosition.y].removeEnvObject(EnvObject.ROBOT);
                     env[currentPosition.x-1][currentPosition.y].addEnvObject(EnvObject.ROBOT);
                     return env[currentPosition.x-1][currentPosition.y];
-                case MOVED:
+                case MOVEDOWN:
                     env[currentPosition.x][currentPosition.y].removeEnvObject(EnvObject.ROBOT);
                     env[currentPosition.x+1][currentPosition.y].addEnvObject(EnvObject.ROBOT);
                     return  env[currentPosition.x+1][currentPosition.y];
-                case MOVEL:
+                case MOVELEFT:
                     env[currentPosition.x][currentPosition.y].removeEnvObject(EnvObject.ROBOT);
                     env[currentPosition.x][currentPosition.y-1].addEnvObject(EnvObject.ROBOT);
                     return env[currentPosition.x][currentPosition.y-1];
-                case MOVER:
+                case MOVERIGHT:
                     env[currentPosition.x][currentPosition.y].removeEnvObject(EnvObject.ROBOT);
                     env[currentPosition.x][currentPosition.y+1].addEnvObject(EnvObject.ROBOT);
                     return env[currentPosition.x][currentPosition.y+1];
