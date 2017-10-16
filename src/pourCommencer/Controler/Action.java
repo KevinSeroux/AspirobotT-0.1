@@ -1,3 +1,5 @@
+package pourCommencer.Controler;
+
 public enum Action {
     ASPIRE,
     GATHER,

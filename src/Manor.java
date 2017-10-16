@@ -1,3 +1,9 @@
+package pourCommencer.Controler;
+
+import pourCommencer.Controler.Action;
+import pourCommencer.Controler.Case;
+import pourCommencer.Controler.EnvObject;
+
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -8,7 +14,7 @@ public class Manor extends Thread {
     private double performance;
     private long timeMaxToGenerate;
 
-    public Manor(long timeMaxToGenerate) {
+    /*public Manor(long timeMaxToGenerate) {
         performance = 0;
         for (int i = 0; i < MANOR_SIZE; i++) {
             for (int j = 0; j < MANOR_SIZE; j++) {
@@ -16,9 +22,9 @@ public class Manor extends Thread {
             }
         }
         this.timeMaxToGenerate = timeMaxToGenerate;
-    }
+    }*/
 
-    @Override
+    /*@Override
     public String toString() {
         String representation = "";
         for (int j = 0; j < MANOR_SIZE; j++) {
@@ -37,8 +43,8 @@ public class Manor extends Thread {
         }
         return representation;
     }
-
-    public boolean majEnv(Action a, Case c){
+*/
+    /*public boolean majEnv(Action a, Case c){
         if(a == Action.ASPIRE){
             if (c.containsEnvObject(EnvObject.DUST)){
                 ajouterPerf(1);
@@ -84,7 +90,7 @@ public class Manor extends Thread {
         }
         return false;
 
-    }
+    }*/
 
     private void baisserPerf(int i) {
         this.performance-=i;
@@ -94,7 +100,7 @@ public class Manor extends Thread {
         this.performance+=i;
     }
 
-    @Override
+    /*@Override
     public void run() {
         Random ri = new Random();
         Random rj = new Random();
@@ -116,5 +122,5 @@ public class Manor extends Thread {
             }
         }
 
-    }
+    }*/
 }

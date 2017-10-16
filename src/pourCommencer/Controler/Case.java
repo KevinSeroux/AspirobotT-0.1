@@ -1,3 +1,7 @@
+package pourCommencer.Controler;
+
+import pourCommencer.Controler.EnvObject;
+
 import java.util.ArrayList;
 
 public class Case {
@@ -10,6 +14,16 @@ public class Case {
         this.x = x;
         this.y = y;
         this.object = new ArrayList<EnvObject>();
+    }
+
+    public Case(Case c){
+        this.object = new ArrayList<>();
+        for (EnvObject e :
+                c.object) {
+            this.object.add(e);
+        }
+        this.x=c.x;
+        this.y=c.y;
     }
 
     public boolean addEnvObject(EnvObject e){
