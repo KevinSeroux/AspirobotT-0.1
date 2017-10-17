@@ -22,9 +22,12 @@ public class PerfCounterImpl extends PerformanceCounter {
 
 	@Override
 	public double getPerformance() {
+		int nbPoussiereSurLePlateau = (nbDirtGenere-nbDirtAspire);
+		int nbBijouxSurLePlateau = (nbJewelGenere-nbJewelAspire-nbJewelRamasse);
+		int taillePlateau = manorSize*manorSize;
 		return 100 * (
-				(alpha*(manorSize*manorSize-(nbDirtGenere-nbDirtAspire)) + beta * (manorSize*manorSize -(nbJewelGenere-nbJewelAspire-nbJewelRamasse))) /
-						((alpha*manorSize*manorSize + beta * (manorSize*manorSize -(nbJewelGenere-nbJewelAspire-nbJewelRamasse))) + facteurAspirationBijoux *beta * (nbJewelAspire) + nbAction*coutAction));
+				(alpha*(taillePlateau-nbPoussiereSurLePlateau) + beta * (taillePlateau -nbBijouxSurLePlateau)) /
+						((alpha*taillePlateau + beta * (taillePlateau -nbBijouxSurLePlateau)) + facteurAspirationBijoux *beta * (nbJewelAspire) + nbAction*coutAction));
 	}
 
 	@Override

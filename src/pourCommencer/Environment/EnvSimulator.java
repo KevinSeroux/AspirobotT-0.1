@@ -8,6 +8,7 @@ public class EnvSimulator implements Runnable {
 
     private final static int maxGenerationTimeMs = 5000;
 
+    //TODO Je pense qu'il faut deux random pour être uniforme ? -Max
     private ThreadLocalRandom random;
     private _Environment env;
 
@@ -45,6 +46,7 @@ public class EnvSimulator implements Runnable {
         return new Position(x, y);
     }
 
+    //TODO On pensait mettre des limites (genre 50% pour la dust et 20% pour les bijoux -Max
     private void chooseObjectByMonteCarlo(Position pos) {
         double draw = random.nextDouble(1);
         if(draw <= probabilityGenerateDust)
