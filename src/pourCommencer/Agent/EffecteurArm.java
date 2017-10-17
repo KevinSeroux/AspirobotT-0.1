@@ -1,21 +1,19 @@
 package pourCommencer.Agent;
 
-import pourCommencer.Controler.Action;
-import pourCommencer.Controler.Case;
-import pourCommencer.Controler.EnvObject;
-import pourCommencer.Controler._Controler;
+import pourCommencer.Environment.Action;
+import pourCommencer.Environment.ActionType;
+import pourCommencer.Environment._Environment;
 
 public class EffecteurArm {
 
-    _Controler controler;
+    private _Environment env;
 
-    public EffecteurArm(_Controler controler) {
-        this.controler = controler;
+    public EffecteurArm(_Environment env) {
+        this.env = env;
     }
 
     //TODO ajouter mesure de performance pour le robot ?
-    public void ramasser(Case c){
-        c.removeEnvObject(EnvObject.JEWELRY);
-        controler.majEnv(Action.GATHER, c);
+    public void ramasser() {
+        env.triggerAction(new Action(ActionType.GATHER_JEWELRY));
     }
 }

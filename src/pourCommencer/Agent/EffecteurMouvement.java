@@ -1,42 +1,32 @@
 package pourCommencer.Agent;
 
-import pourCommencer.Controler.Action;
-import pourCommencer.Controler.Case;
-import pourCommencer.Controler.EnvObject;
-import pourCommencer.Controler._Controler;
+import pourCommencer.Environment.Action;
+import pourCommencer.Environment.ActionType;
+import pourCommencer.Environment._Environment;
 
+/* On gère pas les collisions ici, le robot a
+ * le droit comme tout le monde de se prendre un
+ * mur */
 public class EffecteurMouvement {
+    _Environment env;
 
-    private _Controler controler;
-
-    public EffecteurMouvement(_Controler controler) {
-        this.controler = controler;
+    public EffecteurMouvement(_Environment env) {
+        this.env = env;
     }
 
-    //TODO Je pense qu'on est pas obligé de gérer l'EnvObject ici, mais plutot appeler le controler et retourner la nouvelle position
-    public Case deplacement( Case[][] env, Case currentPosition, Action a){
-        if (controler.majEnv(a,currentPosition)){
-            switch (a){
-                case MOVEUP:
-                    env[currentPosition.x][currentPosition.y].removeEnvObject(EnvObject.ROBOT);
-                    env[currentPosition.x-1][currentPosition.y].addEnvObject(EnvObject.ROBOT);
-                    return env[currentPosition.x-1][currentPosition.y];
-                case MOVEDOWN:
-                    env[currentPosition.x][currentPosition.y].removeEnvObject(EnvObject.ROBOT);
-                    env[currentPosition.x+1][currentPosition.y].addEnvObject(EnvObject.ROBOT);
-                    return  env[currentPosition.x+1][currentPosition.y];
-                case MOVELEFT:
-                    env[currentPosition.x][currentPosition.y].removeEnvObject(EnvObject.ROBOT);
-                    env[currentPosition.x][currentPosition.y-1].addEnvObject(EnvObject.ROBOT);
-                    return env[currentPosition.x][currentPosition.y-1];
-                case MOVERIGHT:
-                    env[currentPosition.x][currentPosition.y].removeEnvObject(EnvObject.ROBOT);
-                    env[currentPosition.x][currentPosition.y+1].addEnvObject(EnvObject.ROBOT);
-                    return env[currentPosition.x][currentPosition.y+1];
-                default:
-                    return currentPosition;
-            }
-        }
-        return currentPosition;
+    public void moveUp() {
+        env.triggerAction(new Action(ActionType.MOVE_UP));
+    }
+
+    public void moveDown() {
+        env.triggerAction(new Action(ActionType.MOVE_DOWN));
+    }
+
+    public void moveLeft() {
+        env.triggerAction(new Action(ActionType.MOVE_LEFT));
+    }
+
+    public void moveRight() {
+        env.triggerAction(new Action(ActionType.MOVE_RIGHT));
     }
 }

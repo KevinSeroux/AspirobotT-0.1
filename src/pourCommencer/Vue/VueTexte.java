@@ -1,74 +1,62 @@
 package pourCommencer.Vue;
 
-import pourCommencer.Controler.Case;
-import pourCommencer.Controler._Controler;
+import pourCommencer.Environment.Environment;
+import pourCommencer.Environment.Position;
 
 import java.util.Observable;
+import java.util.Observer;
+import java.util.concurrent.Semaphore;
 
-public class VueTexte implements _Vue, Runnable {
+public class VueTexte implements _Vue, Runnable, Observer {
 
-    private Case environnement[][];
-    private boolean change = false;
-    private double performance = 100;
+    private Semaphore semaphore;
+    private Environment env;
 
-    public VueTexte(Case e[][]) {
-        /*environnement = new  Case[e.length][e.length];
-        for (int i = 0; i < e.length; i++) {
-            for (int j = 0; j < e.length; j++) {
-                environnement[i][j] = new Case(e[i][j]);
-            }
-        }*/
-        environnement = e;
+    public VueTexte(Environment env) {
+        this.env = env;
+        this.semaphore = new Semaphore(1);
     }
 
     @Override
     public void run() {
-        System.out.println("dmerage vue");
-        while (true){
-            synchronized (this) {
-                if (change) {
-                    System.out.println(this);
-                    System.out.println("Performance : " + performance);
-                    change = false;
-                }
+        while(true) {
+            try {
+                semaphore.acquire();
+
+                System.out.println(this);
+                System.out.println("Performance : " + env.getPerfCounter().getPerformance());
+
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
 
     @Override
     public String toString() {
+        int size = env.getSize();
+
         String representation = "";
-        for (int j = 0; j < environnement.length; j++) {
-            representation+="-----";
+        for (int i = 0; i < size; i++) {
+            representation += "-----";
         }
-        representation+="\n";
-        for (int i = 0; i < environnement.length; i++) {
-            for (int j = 0; j < environnement.length; j++) {
-                representation+=environnement[i][j] + "|";
+        representation += "\n";
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                Position pos = new Position(i, j);
+                representation += env.getState().getCase(pos) + "|";
             }
-            representation+="\n";
-            for (int j = 0; j < environnement.length; j++) {
-                representation+="-----";
+            representation += "\n";
+            for (int j = 0; j < size; j++) {
+                representation += "-----";
             }
-            representation+="\n";
+            representation += "\n";
         }
         return representation;
     }
 
-    //TODO peut être vaut il mieux passer l'env via update que de l'avoir en param.
-    @Override
+    // Débloque le sémaphore pour que run() poursuit
     public void update(Observable o, Object arg) {
-        synchronized (this){
-            change = true;
-        }
-        /*synchronized (o){
-            Case[][] e = ((_Controler) o).getEnvironnement();
-            for (int i = 0; i < e.length; i++) {
-                for (int j = 0; j < e.length; j++) {
-                    environnement[i][j] = new Case(e[i][j]);
-                }
-            }
-        }*/
-        performance = ((_Controler) o).getPerformance();
+        semaphore.release();
     }
 }

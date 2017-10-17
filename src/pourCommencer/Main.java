@@ -1,25 +1,29 @@
 package pourCommencer;
 
 import pourCommencer.Agent.Robot;
-import pourCommencer.Controler.Case;
-import pourCommencer.Controler.Controler;
+import pourCommencer.Environment.*;
 import pourCommencer.Vue.VueTexte;
 
 public class Main {
     public static void main(String[] args) {
-        Controler controler = new Controler(10, new Case(5,5));
-        VueTexte vueTexte = new VueTexte(controler.getEnvironnement());
-        Robot robot = new Robot(controler, new Case(5,5));
-
-        controler.addObserver(vueTexte);
-
         System.out.println("Initialisation");
-        (new Thread(controler)).start();
-        System.out.println("Controler lancé");
+
+        int manorSize = 10;
+        PerformanceCounter perfCounter = new PerfCounterImpl(manorSize);
+        Environment env = new Manor(perfCounter, manorSize, new Position(5, 5));
+        EnvSimulator envSimulator = new EnvSimulator(env);
+        VueTexte vueTexte = new VueTexte(env);
+        Robot robot = new Robot(env);
+
+        env.addObserver(vueTexte);
+
+        (new Thread(envSimulator)).start();
+        System.out.println("Simulateur d'environnement lancé");
+
         (new Thread(vueTexte)).start();
         System.out.println("Vue lancée");
-        (new Thread(robot)).start();
-        System.out.println("Robot lancée");
 
+        (new Thread(robot)).start();
+        System.out.println("Robot lancé");
     }
 }

@@ -1,14 +1,13 @@
-package pourCommencer.Controler;
+package pourCommencer.Environment;
 
 public enum EnvObject {
     DUST("D"),
     JEWELRY("J"),
-    BASKET("B"),
     ROBOT("R");
 
     private final String description;
 
-    private EnvObject(String value){
+    private EnvObject(String value) {
         description = value;
     }
 
