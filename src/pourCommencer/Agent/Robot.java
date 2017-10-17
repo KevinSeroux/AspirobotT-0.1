@@ -6,8 +6,11 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 //TODO
-enum Goal {
-    DEFAULT
+class MentalState {
+    EnvState beliefs;
+    enum Desire { DEFAULT, }
+    Desire goal;
+    LinkedList<ActionType> intentions;
 }
 
 public class Robot implements Runnable {
@@ -39,24 +42,27 @@ public class Robot implements Runnable {
 
     private void stupidRobot() {
         // Execute all actions for the first observation
-        // TODO: Refactor in BDI struct
-        EnvState beliefs = vision.snapshotState();
-        Goal goal = chooseGoal(beliefs);
-        Set<ActionType> actionsPossible = possibleActions(beliefs);
-        LinkedList<ActionType> intentions = chooseIntentions(goal, actionsPossible);
-        while(!intentions.isEmpty())
-            executeAction(intentions.poll());
+        MentalState mentalState = buildMentalState();
+        while(!mentalState.intentions.isEmpty())
+            executeAction(mentalState.intentions.poll());
 
         while (true) {
-            if(doObserve()) {
-                beliefs = vision.snapshotState();
-                goal = chooseGoal(beliefs);
-                actionsPossible = possibleActions(beliefs);
-                intentions = chooseIntentions(goal, actionsPossible);
-            }
+            if(doObserve())
+                mentalState = buildMentalState();
 
-            executeAction(intentions.poll());
+            executeAction(mentalState.intentions.poll());
         }
+    }
+
+    private MentalState buildMentalState() {
+        MentalState mentalState = new MentalState();
+
+        mentalState.beliefs = vision.snapshotState();
+        mentalState.goal = chooseGoal(mentalState.beliefs);
+        Set<ActionType> actionsPossible = possibleActions(mentalState.beliefs);
+        mentalState.intentions = chooseIntentions(mentalState.goal, actionsPossible);
+
+        return mentalState;
     }
 
     private boolean doObserve() {
@@ -78,8 +84,8 @@ public class Robot implements Runnable {
     }
 
     //TODO
-    private Goal chooseGoal(EnvState belief) {
-        return Goal.DEFAULT;
+    private MentalState.Desire chooseGoal(EnvState belief) {
+        return MentalState.Desire.DEFAULT;
     }
 
     /* L'agent s'interroge ici sur les actions qu'il peut faire.
@@ -110,8 +116,9 @@ public class Robot implements Runnable {
         return actionsList;
     }
 
+    //TODO
     private LinkedList<ActionType> chooseIntentions(
-            Goal goal, Set<ActionType> actionsPossible
+            MentalState.Desire goal, Set<ActionType> actionsPossible
     ) {
         LinkedList<ActionType> intentions = new LinkedList<>();
 
