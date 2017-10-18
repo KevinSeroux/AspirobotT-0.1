@@ -2,8 +2,11 @@ package pourCommencer.Agent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+/* This class allows the agent to learn to adjust
+ * the exploration frequency */
 public class ExplorationFrequency {
-	private static final int EXAMPLE_COUNT = 5;
+	// How many measures for each frequency
+	private static final int MEASURE_COUNT = 5;
 
 	private ThreadLocalRandom random;
 
@@ -38,13 +41,17 @@ public class ExplorationFrequency {
 		return retExploFreq;
 	}
 
-	// Ajoute une mesure de perf d'exploration
+	// Add a performance measure
 	void addMeasure(double currentMeasure) {
 		// If there is no more failed allowed, do nothing
 		if(isTraining()) {
-			// Repeat 4x times from the second time
+			/* Repeat 4x times from the second time
+			 * What we do is add:
+			 * (measure 3 - measure 2) + (measure 4 - measure 3) + ... */
 			if(1 <= remainingLearnExample && remainingLearnExample <= 4)
 				appendMeasureToSlope(currentMeasure);
+			/* We need to keep the current measure for the next time
+			 * the method is called */
 			lastMeasure = currentMeasure;
 
 			remainingLearnExample--;
@@ -71,11 +78,11 @@ public class ExplorationFrequency {
 	}
 
 	private void reset() {
-		remainingLearnExample = EXAMPLE_COUNT;
+		remainingLearnExample = MEASURE_COUNT;
 		randomExploSlope = 0;
 	}
 
-	// Test
+	// An unit test to ensure the learning work
 	public static void main(String[] args) throws Exception {
 		final double[][] perfMeasures = {
 			{1, 2, 3, 2, 3}, // Best

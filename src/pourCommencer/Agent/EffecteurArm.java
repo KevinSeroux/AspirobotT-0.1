@@ -10,7 +10,6 @@ public class EffecteurArm {
         this.env = env;
     }
 
-    //TODO ajouter mesure de performance pour le robot ?
     public void ramasser() {
         env.agentDoGatherJewel();
     }

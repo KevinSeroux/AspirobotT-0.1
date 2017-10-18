@@ -25,6 +25,8 @@ public class Robot implements Runnable {
     private EffecteurAspiration aspiration;
     private EffecteurMouvement mouvement;
     private SensorVision vision;
+
+    // Count of times the agent has asked himself if he should observe
     private int observationCounter;
 
     public Robot(Environment env) {
@@ -57,13 +59,14 @@ public class Robot implements Runnable {
         while(!mentalState.intentions.isEmpty())
             executeAction(mentalState.intentions.poll());
 
+        // Then, place some observations between actions
         while (true) {
             if(doObserve())
                 mentalState = buildMentalState();
 
             executeAction(mentalState.intentions.poll());
 
-            // Notifie le système d'apprentissage de la performance de l'action
+            // Notify the frequency learning system of the new perf
             exploFrequency.addMeasure(perfCounter.get());
         }
     }
@@ -228,6 +231,9 @@ public class Robot implements Runnable {
         return mentalState;
     }
 
+    /* If the observation frequency is 0.5 so the agent
+     * execute 2 actions for each observation
+     */
     private boolean doObserve() {
         boolean doObserve;
         observationCounter++;
@@ -251,10 +257,8 @@ public class Robot implements Runnable {
         return MentalState.Desire.DEFAULT;
     }
 
-    //TODO C'est faux ici (inversion x et y)
-    //DONE Changé par Max pour x et y
-    /* L'agent s'interroge ici sur les actions qu'il peut faire.
-     * Il trie les actions n'apportant pas d'intérêt */
+    /* The agent asks himself what are the actions he can do.
+     * Pointless and impossible actions are sort out */
     private Set<Action> possibleActions(EnvState belief) {
         Set<Action> actionsList = new HashSet<>();
         int envSize = belief.getEnvSize();
@@ -306,6 +310,9 @@ public class Robot implements Runnable {
         return intentions;
     }
 
+    /* The agent try to perform the given action.
+     * The action can fails since the environment has rules.
+     * ex: He can hit a wall */
     private void executeAction(Action action) {
         if(action != null) {
             switch (action) {
@@ -338,7 +345,7 @@ public class Robot implements Runnable {
             }
         }
 
-        // Simule le temps pour faire une action
+        // Simulate the time to do one action
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {

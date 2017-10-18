@@ -2,9 +2,6 @@ package pourCommencer.Agent;
 
 import pourCommencer.Environment._Environment;
 
-/* On gère pas les collisions ici, le robot a
- * le droit comme tout le monde de se prendre un
- * mur */
 public class EffecteurMouvement {
     _Environment env;
 
