@@ -7,7 +7,7 @@ public enum EnvObject {
 
     private final String description;
 
-    private EnvObject(String value) {
+    EnvObject(String value) {
         description = value;
     }
 

@@ -2,6 +2,7 @@ package pourCommencer.Environment;
 
 import pourCommencer.Agent.Action;
 import pourCommencer.Event;
+import pourCommencer.EventType;
 
 import java.util.Observable;
 
@@ -38,6 +39,8 @@ public class PerfCounterImpl extends PerformanceCounter {
 	@Override
 	public void update(Observable observable, Object o) {
 		Event event = (Event) o;
+		if(event.getType() == EventType.AGENT)
+			nbAction++;
 
 		switch(event) {
 			case DUST_GENERATED:
@@ -46,7 +49,6 @@ public class PerfCounterImpl extends PerformanceCounter {
 
 			case DUST_VACCUMED:
 				nbDirtAspire++;
-				nbAction++;
 				break;
 
 			case JEWELRY_GENERATED:
@@ -55,40 +57,10 @@ public class PerfCounterImpl extends PerformanceCounter {
 
 			case JEWELRY_GATHERED:
 				nbJewelRamasse++;
-				nbAction++;
 				break;
 
 			case JEWELRY_VACCUMED:
 				nbJewelAspire++;
-				nbAction++;
-				break;
-
-			case AGENT_MOVED:
-				nbAction++;
-				break;
-
-			case AGENT_HIT_NORTH:
-				nbAction++;
-				break;
-
-			case AGENT_HIT_SOUTH:
-				nbAction++;
-				break;
-
-			case AGENT_HIT_WEST:
-				nbAction++;
-				break;
-
-			case AGENT_HIT_EST:
-				nbAction++;
-				break;
-
-			case VOID_VACCUMED:
-				nbAction++;
-				break;
-
-			case VOID_GATHERED:
-				nbAction++;
 				break;
 		}
 	}

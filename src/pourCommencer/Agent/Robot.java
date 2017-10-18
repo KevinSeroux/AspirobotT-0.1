@@ -139,8 +139,7 @@ public class Robot implements Runnable {
         //System.out.println("Position : x : " + node.getPositionRobot().x+ ", y : "+node.getPositionRobot().y);
         Case caseCourante = node.getEnvironnement().getCase(node.getPositionRobot());
         if(caseCourante.containsEnvObject(EnvObject.DUST) && m.goal == MentalState.Desire.DUST) return true;
-        if(caseCourante.containsEnvObject(EnvObject.JEWELRY) && m.goal == MentalState.Desire.JEWEL) return true;
-        return false;
+        return caseCourante.containsEnvObject(EnvObject.JEWELRY) && m.goal == MentalState.Desire.JEWEL;
     }
 
     private Collection<? extends Noeud> expand(Noeud node) throws ExpandActionTypeException {
