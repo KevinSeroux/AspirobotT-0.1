@@ -20,6 +20,9 @@ public class SensorVision {
     static public boolean isCaseDirtyAt(EnvState state, Position pos) {
         return state.getCase(pos).containsEnvObject(EnvObject.DUST);
     }
+    static public boolean isCaseJewelAt(EnvState state, Position pos) {
+        return state.getCase(pos).containsEnvObject(EnvObject.JEWELRY);
+    }
 
     static public boolean doesCaseHaveJewelery(EnvState state, Position pos) {
         return state.getCase(pos).containsEnvObject(EnvObject.JEWELRY);

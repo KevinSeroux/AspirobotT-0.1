@@ -1,5 +1,6 @@
 package pourCommencer;
 
+import pourCommencer.Agent.AgentExploStupide;
 import pourCommencer.Agent.Robot;
 import pourCommencer.Environment.*;
 import pourCommencer.Vue.VueTexte;
