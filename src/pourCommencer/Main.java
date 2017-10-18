@@ -15,8 +15,11 @@ public class Main {
         // The environment
         Environment env = new Manor(perfCounter, manorSize, new Position(5, 5));
         // The simulator places random dust and jewel in the environment
+        /*Environment env = new Manor(perfCounter, manorSize, new Position(0, 0));
+        env.getState().getCase(new Position(9,9)).addEnvObject(EnvObject.JEWELRY);
+        env.getState().getCase(new Position(3,3)).addEnvObject(EnvObject.DUST);*/
         EnvSimulator envSimulator = new EnvSimulator(env);
-        Robot robot = new Robot(env);
+        Robot robot = new AgentExploStupide(env);
         // The console GUI
         VueTexte vueTexte = new VueTexte(env, robot);
 

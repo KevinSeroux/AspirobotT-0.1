@@ -1,12 +1,13 @@
 package pourCommencer.Agent;
 
+import javafx.util.Pair;
 import pourCommencer.Agent.Exploration.Noeud;
 import pourCommencer.Environment.*;
-import pourCommencer.Excepetion.ExpandActionTypeException;
-import pourCommencer.Excepetion.explorationLargeurNotFoundException;
+import pourCommencer.Excepetion.*;
 
 import java.util.*;
 
+import static pourCommencer.Agent.Robot.PROFONDEUR_MAX;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
 import static pourCommencer.Agent.SensorVision.isCaseDirtyAt;
 import static pourCommencer.Agent.SensorVision.isCaseJewelAt;
@@ -37,13 +38,17 @@ public class AgentExploStupide extends Robot {
             if (mentalState.goal != MentalState.Desire.DEFAULT) {
                 try {
                     mentalState.intentions = explorationLargeur(mentalState);
-                } catch (explorationLargeurNotFoundException e) {
+                    //mentalState.intentions = explorationDepthFirstSearch(mentalState);
+                    //mentalState.intentions = explorationDepthLimited(mentalState);
+                    //mentalState.intentions = explorationIterativeDeepening(mentalState);
+
+                } catch (ExplorationException e) {
+                    System.out.println("CHANGEMENT DE BUT --------------------------------------- CHANGEMENT DE BUT");
                     impossibleGoal.add(mentalState.goal);
                     continue;
-                } catch (ExpandActionTypeException e) {
+                } /*catch (ExpandActionException e) {
                     e.printStackTrace();
-                    continue;
-                }
+                }*/
                 impossibleGoal.clear();
                 while (!mentalState.intentions.isEmpty())
                     super.executeAction(mentalState.intentions.poll());
@@ -74,13 +79,19 @@ public class AgentExploStupide extends Robot {
         return MentalState.Desire.DEFAULT; //TODO pour moi c'est Do Nothing -Max
     }
 
-    private LinkedList<Action> explorationLargeur(MentalState m) throws explorationLargeurNotFoundException, ExpandActionTypeException {
+    private LinkedList<Action> uniformCostSearch(MentalState m) {
+        return null;
+    }
+
+    private LinkedList<Action> explorationLargeur(MentalState m) throws ExplorationException {
+
+
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
         Noeud origine = new Noeud(null, e,0, 0,initiale, 0); //Position actuelle du robot ?
         origine.getEnvironnement().getCase(initiale).removeEnvObject(EnvObject.ROBOT);
-        LinkedList<Noeud> fringe = new LinkedList<Noeud>();
-        fringe.add(origine);
+        LinkedList<Noeud> fringe = new LinkedList<>();
+        fringe.addAll(expand(origine));
         Noeud node = null;
         boolean trouve = false;
         while (true){
@@ -109,11 +120,133 @@ public class AgentExploStupide extends Robot {
             }
             return todo;
         }else{
-            System.out.println("------------------------\n BEST MOVE TO DO \n -------------------------");
+            //System.out.println("------------------------\n BEST MOVE TO DO \n -------------------------");
             //TODO renvoyer action nulle -Max
-            throw new explorationLargeurNotFoundException();
+            throw new ExplorationException();
         }
     }
+
+    private LinkedList<Action> explorationIterativeDeepening(MentalState m) throws ExplorationException {
+        EnvState e;
+        Position initiale = getAgentPosition(m.beliefs);
+        Pair resultat = null;
+        Noeud origine = null;
+        int profondeur;
+        for(profondeur = 0; profondeur < PROFONDEUR_MAX*100 ; profondeur++){
+            e = new EnvState(m.beliefs);
+            origine = new Noeud(null, e,0, 0,initiale, 0); //Position actuelle du robot ?
+            origine.getEnvironnement().getCase(initiale).removeEnvObject(EnvObject.ROBOT);
+            resultat = recursiveDLS(origine,profondeur,m);
+            if(resultat.getKey().equals("noeud")){
+                break;
+            }
+        }
+        if (profondeur >= PROFONDEUR_MAX*100) throw new ExplorationException();
+        Noeud node = (Noeud) resultat.getValue();
+        LinkedList<Action> todo = new LinkedList<>();
+        System.out.println("Dernier noeud position "+node.getPositionRobot().x + " "+ node.getPositionRobot().y);
+        while(node != origine){
+            todo.push(node.getParent().getSuccessor().get(node));
+            node = node.getParent();
+        }
+        for (Action a:todo
+                ) {
+            System.out.println("Action : "+a);
+        }
+        return todo;
+    }
+
+    private LinkedList<Action> explorationDepthLimited(MentalState m) throws ExplorationException {
+        EnvState e = new EnvState(m.beliefs);
+        Position initiale = getAgentPosition(e);
+        Noeud origine = new Noeud(null, e,0, 0,initiale, 0); //Position actuelle du robot ?
+        origine.getEnvironnement().getCase(initiale).removeEnvObject(EnvObject.ROBOT);
+        Pair resultat = recursiveDLS(origine,PROFONDEUR_MAX,m);
+        if (resultat.getKey().equals("noeud")){
+            Noeud node = (Noeud) resultat.getValue();
+            LinkedList<Action> todo = new LinkedList<>();
+            System.out.println("Dernier noeud position "+node.getPositionRobot().x + " "+ node.getPositionRobot().y);
+            while(node != origine){
+                todo.push(node.getParent().getSuccessor().get(node));
+                node = node.getParent();
+            }
+            for (Action a:todo
+                    ) {
+                System.out.println("Action : "+a);
+            }
+            return todo;
+        }
+        else{
+            System.out.println("Fail exploration");
+            throw new ExplorationException();
+        }
+    }
+
+    private Pair<String,Noeud> recursiveDLS(Noeud node, int profondeur, MentalState m)  {
+        boolean cutOffOccurred = false;
+        if(goalTest(m,node)){
+            return new Pair<>("noeud",node);
+        }
+        else if(node.getProfondeur() == profondeur){
+            return new Pair<>("cuttoff",null);
+        }else{
+                for (Noeud successor :
+                        expand(node)) {
+                    Pair result = recursiveDLS(successor, profondeur, m);
+                    if (result.getKey().equals("cuttoff"))
+                        cutOffOccurred = true;
+                    else if(!result.getKey().equals("failure"))
+                        return result;
+                }
+                if(cutOffOccurred){
+                    return new Pair<>("cuttoff",null);
+                }
+        }
+        return new Pair<>("failure",null);
+    }
+
+    private LinkedList<Action> explorationDepthFirstSearch(MentalState m) throws ExplorationException {
+        EnvState e = new EnvState(m.beliefs);
+        Position initiale = getAgentPosition(e);
+        Noeud origine = new Noeud(null, e,0, 0,initiale, 0); //Position actuelle du robot ?
+        origine.getEnvironnement().getCase(initiale).removeEnvObject(EnvObject.ROBOT);
+        LinkedList<Noeud> fringe = new LinkedList<>();
+        fringe.addAll(expand(origine));
+        Noeud node = null;
+        boolean trouve = false;
+        while (true){
+            if(fringe.size() == 0){
+                trouve = false;
+                break; //retunr failure
+            }
+            node = fringe.removeLast();
+            if(goalTest(m, node)){
+                trouve = true;
+                break; //return node
+            }
+            if (node.getProfondeur() < PROFONDEUR_MAX)
+                fringe.addAll(expand(node));
+        }
+        if(trouve){
+            LinkedList<Action> todo = new LinkedList<>();
+            System.out.println("Dernier noeud position "+node.getPositionRobot().x + " "+ node.getPositionRobot().y);
+            while(node != origine){
+                todo.push(node.getParent().getSuccessor().get(node));
+                node = node.getParent();
+            }
+            for (Action a:todo
+                    ) {
+                System.out.println("Action : "+a);
+            }
+            return todo;
+        }else{
+            //System.out.println("------------------------\n BEST MOVE TO DO \n -------------------------");
+            //TODO renvoyer action nulle -Max
+            throw new ExplorationException();
+        }
+    }
+
+
 
     private Noeud bestMoveToDo(Noeud origine) {
         return  origine.meilleurNoeud();
@@ -122,41 +255,60 @@ public class AgentExploStupide extends Robot {
     private boolean goalTest(MentalState m, Noeud node) {
         //System.out.println("Position : x : " + node.getPositionRobot().x+ ", y : "+node.getPositionRobot().y);
         Case caseCourante = node.getEnvironnement().getCase(node.getPositionRobot());
-        if(caseCourante.containsEnvObject(EnvObject.DUST) && m.goal == MentalState.Desire.DUST){
-            //TODO BUG Si jewel + dust sur la meme case
-            if(node.getParent().getSuccessor().get(node) == Action.VACUUM_DUST) return true;
-            return false;
-        }
 
-        if(caseCourante.containsEnvObject(EnvObject.JEWELRY) && m.goal == MentalState.Desire.JEWEL){
-            if(node.getParent().getSuccessor().get(node) == Action.GATHER_JEWELRY) return true;
-            return false;
-        }
+        if(node.getParent() != null) {
+            //if (caseCourante.containsEnvObject(EnvObject.DUST) && m.goal == MentalState.Desire.DUST) {
+            if (m.goal == MentalState.Desire.DUST) {
+                //TODO BUG Si jewel + dust sur la meme case
+                try {
+                    return node.getParent().getSuccessor().get(node) == Action.VACUUM_DUST;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            //if (caseCourante.containsEnvObject(EnvObject.JEWELRY) && m.goal == MentalState.Desire.JEWEL) {
+            if(m.goal == MentalState.Desire.JEWEL){
+                return node.getParent().getSuccessor().get(node) == Action.GATHER_JEWELRY;
+            }
         /*if (m.goal == MentalState.Desire.DEFAULT){
-            if(node.getParent().getSuccessor().get(node) == ActionType.DO_NOTHING) return true;
+            if(node.getParent().getSuccessor().get(node) == Action.DO_NOTHING) return true;
             return false;
         }*/
+        }
         return false;
     }
 
-    private Collection<? extends Noeud> expand(Noeud node) throws ExpandActionTypeException {
+    private Collection<? extends Noeud> expand(Noeud node) {
         LinkedList<Noeud> successors = new LinkedList<>();
         Noeud s;
         Position futurePosition = null;
-        int performance = node.getPerformance() -1;
-        for (Action a:possibleActionsByPosition(node.getEnvironnement(),node.getPositionRobot())) {
+        /*env = new EnvState(env);
+        env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.DUST);
+        env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.JEWELRY);*/
+        EnvState env;// =node.getEnvironnement();
+        int performance;// = node.getPerformance() -1;
+        for (Action a:possibleActionsByPositionEtMarquage(node.getEnvironnement(),node.getPositionRobot())) { //-------------------TODO
+            performance = node.getPerformance() -1;
+            env = node.getEnvironnement();
+            //env = new EnvState(node.getEnvironnement());
+            env.getCase(node.getPositionRobot()).addEnvObject(EnvObject.ROBOT);
             switch (a) {
                 case VACUUM_DUST:
                     if(isCaseDirtyAt(node.getEnvironnement(),node.getPositionRobot())){
-                        //performance+=ActionType.VACUUM_DUST.getPerf() - ActionType.VACUUM_DUST.getCoutAction(); //TODO
+                        //performance+=Action.VACUUM_DUST.getPerf() - Action.VACUUM_DUST.getCoutAction(); //TODO
                         performance+=10;
-                        if (isCaseJewelAt(node.getEnvironnement(),node.getPositionRobot()))
-                        performance-=40;
+                        env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.DUST);
+                        if (isCaseJewelAt(node.getEnvironnement(),node.getPositionRobot())) {
+                            performance -= 40;
+                            env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.JEWELRY);
+                        }
                     }
                 case GATHER_JEWELRY:
                     if(a == Action.GATHER_JEWELRY && isCaseJewelAt(node.getEnvironnement(),node.getPositionRobot())){
-                        //performance+=ActionType.VACUUM_DUST.getPerf() - ActionType.VACUUM_DUST.getCoutAction(); //TODO
+                        //performance+=Action.VACUUM_DUST.getPerf() - Action.VACUUM_DUST.getCoutAction(); //TODO
                         performance+=20;
+                        env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.JEWELRY);
                     }
                     futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y); //TODO faire une methode gauche droite & co ca pourrait être sympa :D -Max
                     break;
@@ -173,7 +325,7 @@ public class AgentExploStupide extends Robot {
                     futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y+1);
                     break;
             }
-            s = new Noeud(node,node.getEnvironnement(),node.getPathCost() + 1,node.getProfondeur()+1, futurePosition, performance); //TODO remplacer 1 par ActionType.getCoutAction()
+            s = new Noeud(node,env,node.getPathCost() + 1,node.getProfondeur()+1, futurePosition, performance); //TODO remplacer 1 par Action.getCoutAction()
             node.addSuccessor(s,a);
             successors.add(s);
         }
@@ -195,6 +347,31 @@ public class AgentExploStupide extends Robot {
             actionsList.add(Action.MOVE_LEFT);
 
         if(p.y < envSize - 1)
+            actionsList.add(Action.MOVE_RIGHT);
+
+        if(SensorVision.isCaseDirtyAt(belief, p))
+            actionsList.add(Action.VACUUM_DUST);
+
+        if(SensorVision.doesCaseHaveJewelery(belief, p))
+            actionsList.add(Action.GATHER_JEWELRY);
+
+        return actionsList;
+    }
+
+    private Set<Action> possibleActionsByPositionEtMarquage(EnvState belief, Position p) {
+        Set<Action> actionsList = new HashSet<>();
+        int envSize = belief.getEnvSize();
+
+        if(p.x >= 1 && !belief.getCase(new Position(p.x-1,p.y)).containsEnvObject(EnvObject.ROBOT))
+            actionsList.add(Action.MOVE_UP);
+
+        if(p.x < envSize - 1 && !belief.getCase(new Position(p.x+1,p.y)).containsEnvObject(EnvObject.ROBOT))
+            actionsList.add(Action.MOVE_DOWN);
+
+        if(p.y >= 1 && !belief.getCase(new Position(p.x,p.y-1)).containsEnvObject(EnvObject.ROBOT))
+            actionsList.add(Action.MOVE_LEFT);
+
+        if(p.y < envSize - 1 && !belief.getCase(new Position(p.x,p.y+1)).containsEnvObject(EnvObject.ROBOT))
             actionsList.add(Action.MOVE_RIGHT);
 
         if(SensorVision.isCaseDirtyAt(belief, p))

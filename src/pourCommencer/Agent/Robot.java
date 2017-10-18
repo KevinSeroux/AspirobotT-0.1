@@ -1,16 +1,9 @@
 package pourCommencer.Agent;
-
-import pourCommencer.Agent.Exploration.Noeud;
 import pourCommencer.Environment.*;
-import pourCommencer.Excepetion.ExpandActionTypeException;
-import pourCommencer.Excepetion.explorationLargeurNotFoundException;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
-import static pourCommencer.Agent.SensorVision.isCaseDirtyAt;
-import static pourCommencer.Agent.SensorVision.isCaseJewelAt;
 
 //TODO
 class MentalState {
@@ -22,10 +15,11 @@ class MentalState {
 
 public class Robot implements Runnable {
 
+
     // Count of times the agent has asked himself if he should observe
     private int observationCounter;
 
-    protected static final int PROFONDEUR_MAX = 10;
+    protected static final int PROFONDEUR_MAX = 20;
     protected  _PerformanceCounter perfCounter;
     protected ExplorationFrequency exploFrequency;
     protected EffecteurArm bras;
