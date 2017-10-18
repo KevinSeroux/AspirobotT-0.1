@@ -1,6 +1,5 @@
 package pourCommencer.Agent;
 
-import pourCommencer.Agent.Exploration.Edge;
 import pourCommencer.Agent.Exploration.Noeud;
 import pourCommencer.Environment.*;
 import pourCommencer.Excepetion.ExpandActionTypeException;
@@ -20,50 +19,53 @@ class MentalState {
 }
 
 public class Robot implements Runnable {
+    private _PerformanceCounter perfCounter;
+    private ExplorationFrequency exploFrequency;
     private EffecteurArm bras;
     private EffecteurAspiration aspiration;
     private EffecteurMouvement mouvement;
     private SensorVision vision;
-
-    private double explorationFrequency; // It is learned
     private int observationCounter;
 
-    public Robot(_Environment env) {
+    public Robot(Environment env) {
         /* L'agent n'est supposé interagir avec l'environement
          * que par ses capteurs et ses effecteurs */
 
+        this.perfCounter = env.getPerfCounter();
+        this.exploFrequency = new ExplorationFrequency(1);
         this.bras = new EffecteurArm(env);
         this.aspiration = new EffecteurAspiration(env);
         this.mouvement = new EffecteurMouvement(env);
         this.vision = new SensorVision(env);
 
-        this.explorationFrequency = 1;
         this.observationCounter = 0;
+    }
+
+    public ExplorationFrequency getExplorationFrequency() {
+        return exploFrequency;
     }
 
     @Override
     public void run() {
-        //stupidRobot();
-        robotWithExploration();
+        stupidRobot();
+        //robotWithExploration();
     }
 
     private void stupidRobot() {
         // Execute all actions for the first observation
-        //TODO pourquoi c'est la et pas dans le while(true), ici c'est stupid robot on devrait même pas avoir detat mental- Max
         MentalState mentalState = buildMentalState();
         while(!mentalState.intentions.isEmpty())
             executeAction(mentalState.intentions.poll());
 
         while (true) {
-            if(doObserve()) //TODO ni d'heuristique
+            if(doObserve())
                 mentalState = buildMentalState();
 
             executeAction(mentalState.intentions.poll());
         }
     }
 
-
-    private void robotWithExploration(){
+    private void robotWithExploration() {
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
@@ -231,7 +233,7 @@ public class Robot implements Runnable {
         observationCounter++;
 
         double probabilityObservation =
-                observationCounter * explorationFrequency;
+                observationCounter * exploFrequency.get();
 
         if (probabilityObservation >= 1) {
             // Reset the counter
@@ -279,26 +281,29 @@ public class Robot implements Runnable {
         return actionsList;
     }
 
-    //TODO
+    //TODO goal et liste d'intentions
     private LinkedList<ActionType> chooseIntentions(
             MentalState.Desire goal, Set<ActionType> actionsPossible
     ) {
         LinkedList<ActionType> intentions = new LinkedList<>();
 
-        // Ramasse les bijoux avant d'aspirer
-        if(actionsPossible.contains(ActionType.GATHER_JEWELRY))
-            intentions.push(ActionType.GATHER_JEWELRY);
+        //For the test choose 10 intentions
+        for(int i = 0; i < 10; i++) {
+            // Ramasse les bijoux avant d'aspirer
+            if (actionsPossible.contains(ActionType.GATHER_JEWELRY))
+                intentions.push(ActionType.GATHER_JEWELRY);
 
-        else if(actionsPossible.contains(ActionType.VACUUM_DUST))
-            intentions.push(ActionType.VACUUM_DUST);
+            else if (actionsPossible.contains(ActionType.VACUUM_DUST))
+                intentions.push(ActionType.VACUUM_DUST);
 
-        else {
-            // A random move
-            ThreadLocalRandom random = ThreadLocalRandom.current();
-            int countPossibleActions = actionsPossible.size();
-            int actionNumber = random.nextInt(countPossibleActions);
+            else {
+                // A random move
+                ThreadLocalRandom random = ThreadLocalRandom.current();
+                int countPossibleActions = actionsPossible.size();
+                int actionNumber = random.nextInt(countPossibleActions);
 
-            intentions.push((ActionType)(actionsPossible.toArray())[actionNumber]);
+                intentions.push((ActionType) (actionsPossible.toArray())[actionNumber]);
+            }
         }
 
         return intentions;
@@ -335,6 +340,9 @@ public class Robot implements Runnable {
                     break;
             }
         }
+
+        // Notifie le système d'apprentissage de la performance de l'action
+        exploFrequency.addMeasure(perfCounter.get());
 
         // Simule le temps pour faire une action
         try {

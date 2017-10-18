@@ -1,5 +1,6 @@
 package pourCommencer.Vue;
 
+import pourCommencer.Agent.Robot;
 import pourCommencer.Environment.Environment;
 import pourCommencer.Environment.Position;
 
@@ -11,9 +12,11 @@ public class VueTexte implements _Vue, Runnable, Observer {
 
     private Semaphore semaphore;
     private Environment env;
+    private Robot robot;
 
-    public VueTexte(Environment env) {
+    public VueTexte(Environment env, Robot robot) {
         this.env = env;
+        this.robot = robot;
         this.semaphore = new Semaphore(1);
     }
 
@@ -22,8 +25,16 @@ public class VueTexte implements _Vue, Runnable, Observer {
         while(true) {
             try {
                 semaphore.acquire();
+
+                double perf = env.getPerfCounter().get();
+                double exploFreq = robot.getExplorationFrequency().get();
+                boolean isTraining = robot.getExplorationFrequency().isTraining();
+
                 System.out.println(this);
-                System.out.println("Performance : " + env.getPerfCounter().getPerformance());
+                System.out.println("Performance: " + perf);
+                System.out.println("Agent is training: " + isTraining);
+                System.out.println("Agent exploration frequency: " + exploFreq);
+
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

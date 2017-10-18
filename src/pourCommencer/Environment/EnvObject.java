@@ -1,8 +1,8 @@
 package pourCommencer.Environment;
 
 public enum EnvObject {
-    DUST("D"),
-    JEWELRY("J"),
+    DUST("d"),
+    JEWELRY("j"),
     ROBOT("R");
 
     private final String description;

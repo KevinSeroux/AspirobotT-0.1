@@ -21,7 +21,7 @@ public class PerfCounterImpl extends PerformanceCounter {
 	}
 
 	@Override
-	public double getPerformance() {
+	public double get() {
 		int nbPoussiereSurLePlateau = (nbDirtGenere-nbDirtAspire);
 		int nbBijouxSurLePlateau = (nbJewelGenere-nbJewelAspire-nbJewelRamasse);
 		int taillePlateau = manorSize*manorSize;

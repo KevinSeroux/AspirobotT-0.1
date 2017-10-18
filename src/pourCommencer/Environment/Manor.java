@@ -25,6 +25,7 @@ public class Manor extends Environment {
         ActionType type = action.type;
 
         switch(type) {
+            //TODO: Notify observer
             case NEW_DUST: {
                 Position pos = (Position) action.data;
                 state.getCase(pos).addEnvObject(EnvObject.DUST);

@@ -12,8 +12,8 @@ public class Main {
         PerformanceCounter perfCounter = new PerfCounterImpl(manorSize);
         Environment env = new Manor(perfCounter, manorSize, new Position(5, 5));
         EnvSimulator envSimulator = new EnvSimulator(env);
-        VueTexte vueTexte = new VueTexte(env);
         Robot robot = new Robot(env);
+        VueTexte vueTexte = new VueTexte(env, robot);
 
         env.addObserver(vueTexte);
 
