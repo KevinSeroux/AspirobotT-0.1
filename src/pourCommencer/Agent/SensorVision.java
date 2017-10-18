@@ -41,4 +41,31 @@ public class SensorVision {
 
         return null;
     }
+
+    static public boolean isThereDust(EnvState state){
+        int size = state.getEnvSize();
+
+        for(int i = 0; i < size; i++)
+            for(int j = 0; j < size; j++) {
+                Position pos = new Position(i, j);
+                if (state.getCase(pos).containsEnvObject(EnvObject.DUST))
+                    return true;
+            }
+
+        return false;
+
+    }
+    static public boolean isThereJewel(EnvState state){
+        int size = state.getEnvSize();
+
+        for(int i = 0; i < size; i++)
+            for(int j = 0; j < size; j++) {
+                Position pos = new Position(i, j);
+                if (state.getCase(pos).containsEnvObject(EnvObject.JEWELRY))
+                    return true;
+            }
+
+        return false;
+
+    }
 }
