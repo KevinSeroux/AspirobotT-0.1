@@ -10,15 +10,20 @@ import java.util.Observer;
 import java.util.concurrent.Semaphore;
 
 public class VueTexte implements _Vue, Runnable, Observer {
+    /* The semaphore is inspired from Producer-Consumer pattern
+     * except that the producer does not sleep. The consumer is
+     * this class */
 
     private Semaphore semaphore;
     private Environment env;
     private Robot robot;
+    private Event event;
 
     public VueTexte(Environment env, Robot robot) {
         this.env = env;
         this.robot = robot;
         this.semaphore = new Semaphore(1);
+        this.event = Event.STARTUP;
     }
 
     @Override
@@ -27,6 +32,7 @@ public class VueTexte implements _Vue, Runnable, Observer {
             try {
                 semaphore.acquire();
 
+                System.out.println("New event: " + event.toString());
                 double perf = env.getPerfCounter().get();
                 double exploFreq = robot.getExplorationFrequency().get();
                 boolean agentIsTraining = robot.getExplorationFrequency().isTraining();
@@ -47,9 +53,7 @@ public class VueTexte implements _Vue, Runnable, Observer {
 
     // Débloque le sémaphore pour que run() poursuit
     public void update(Observable o, Object arg) {
-        Event event = (Event)arg;
-        System.out.println("New event: " + event.toString());
-
+        event = (Event)arg;
         semaphore.release();
     }
 }

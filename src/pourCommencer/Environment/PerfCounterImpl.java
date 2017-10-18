@@ -36,6 +36,7 @@ public class PerfCounterImpl extends PerformanceCounter {
 						((alpha*taillePlateau + beta * (taillePlateau -nbBijouxSurLePlateau)) + facteurAspirationBijoux *beta * (nbJewelAspire) + nbAction*coutAction));
 	}
 
+	// This method should be called when the environment is updated
 	@Override
 	public void update(Observable observable, Object o) {
 		Event event = (Event) o;

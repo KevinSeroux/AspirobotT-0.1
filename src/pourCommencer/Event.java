@@ -1,9 +1,12 @@
 package pourCommencer;
 
 public enum Event {
+	STARTUP(EventType.OTHER),
+
 	DUST_GENERATED(EventType.SIMULATOR),
-	DUST_VACCUMED(EventType.AGENT),
 	JEWELRY_GENERATED(EventType.SIMULATOR),
+
+	DUST_VACCUMED(EventType.AGENT),
 	JEWELRY_GATHERED(EventType.AGENT),
 	JEWELRY_VACCUMED(EventType.AGENT),
 	AGENT_MOVED(EventType.AGENT),

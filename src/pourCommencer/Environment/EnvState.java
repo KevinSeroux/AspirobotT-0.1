@@ -1,6 +1,6 @@
 package pourCommencer.Environment;
 
-// L'état de l'environnement est une matrice
+// The environment state is like a matrix
 public class EnvState {
 	private int size;
 	private Case[][] cases;

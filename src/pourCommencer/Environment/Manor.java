@@ -2,7 +2,6 @@ package pourCommencer.Environment;
 
 import pourCommencer.Event;
 
-//TODO: Notifications
 public class Manor extends Environment {
 
     private EnvState state;
@@ -67,6 +66,7 @@ public class Manor extends Environment {
     public void agentDoGatherJewel() {
         Event event = Event.JEWELRY_GATHERED;
 
+        // If there was no jewelry it is an useless action;
         if(!getAgentCase().removeEnvObject(EnvObject.JEWELRY))
             event = Event.VOID_GATHERED;
 
