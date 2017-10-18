@@ -6,6 +6,7 @@ import pourCommencer.Environment.*;
 import pourCommencer.Excepetion.*;
 
 import java.util.*;
+import java.util.concurrent.Callable;
 
 import static pourCommencer.Agent.Robot.PROFONDEUR_MAX;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
@@ -26,12 +27,13 @@ public class AgentExploStupide extends Robot {
     }
 
     private void robotWithExploration() {
-        try {
+        /*try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
         MentalState mentalState = new MentalState();
+        //TODO -- Faire comme algo stupid
         while(true) {
             mentalState.beliefs = super.vision.snapshotState(); //Observation
             mentalState.goal = chooseRandomDesire(mentalState.beliefs); //Choix stupid de but
@@ -46,19 +48,55 @@ public class AgentExploStupide extends Robot {
                     System.out.println("CHANGEMENT DE BUT --------------------------------------- CHANGEMENT DE BUT");
                     impossibleGoal.add(mentalState.goal);
                     continue;
-                } /*catch (ExpandActionException e) {
-                    e.printStackTrace();
-                }*/
+                }
                 impossibleGoal.clear();
                 while (!mentalState.intentions.isEmpty())
                     super.executeAction(mentalState.intentions.poll());
             }else{
                 impossibleGoal.clear();
-            }
+            }*/
+
+
+        // Execute all actions for the first observation
+        MentalState mentalState = this.buildMentalState();
+        while(!mentalState.intentions.isEmpty())
+            executeAction(mentalState.intentions.poll());
+
+        // Then, place some observations between actions
+        while (true) {
+            if(doObserve())
+                mentalState = buildMentalState();
+
+            executeAction(mentalState.intentions.poll());
+
+            // Notify the frequency learning system of the new perf
+            exploFrequency.addMeasure(perfCounter.get());
         }
 
 
+
     }
+
+    private MentalState buildMentalState() {
+        MentalState mentalState = new MentalState();
+        mentalState.beliefs = vision.snapshotState();
+        mentalState.goal = chooseRandomDesire(mentalState.beliefs);
+        if(mentalState.goal != MentalState.Desire.DEFAULT){
+            try {
+                mentalState.intentions = explorationLargeur(mentalState); //TODO <-Passer ca en paramètre
+            } catch (ExplorationException e) {
+                //TODO ne doit plus arriver !
+                System.out.println("CHANGEMENT DE BUT --------------------------------------- CHANGEMENT DE BUT");
+                impossibleGoal.add(mentalState.goal);
+                mentalState.intentions = new LinkedList<>();
+            }
+        }else{
+            mentalState.intentions = new LinkedList<>();
+        }
+
+        return mentalState;
+    }
+
     private MentalState.Desire chooseRandomDesire(EnvState state){
         /*Random r = new Random(); //TODO - faudrait l'avoir en permanant non ? ou via thread Random - Max
         //TODO Faire ca en regardant si y'a au moins 1 pourssière dans l'env

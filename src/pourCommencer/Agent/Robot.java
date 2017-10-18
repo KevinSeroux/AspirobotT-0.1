@@ -81,7 +81,7 @@ public class Robot implements Runnable {
     /* If the observation frequency is 0.5 so the agent
      * execute 2 actions for each observation
      */
-    private boolean doObserve() {
+    protected boolean doObserve() {
         boolean doObserve;
         observationCounter++;
 
