@@ -83,7 +83,11 @@ public class PerfCounterImpl extends PerformanceCounter {
 				nbAction++;
 				break;
 
-			case USELESS_ACTION:
+			case VOID_VACCUMED:
+				nbAction++;
+				break;
+
+			case VOID_GATHERED:
 				nbAction++;
 				break;
 		}

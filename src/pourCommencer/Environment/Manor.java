@@ -57,7 +57,7 @@ public class Manor extends Environment {
 
         // If there was no dust it is an useless action;
         if(!getAgentCase().removeEnvObject(EnvObject.DUST))
-            event = Event.USELESS_ACTION;
+            event = Event.VOID_VACCUMED;
 
         setChanged();
         notifyObservers(event);
@@ -68,7 +68,7 @@ public class Manor extends Environment {
         Event event = Event.JEWELRY_GATHERED;
 
         if(!getAgentCase().removeEnvObject(EnvObject.JEWELRY))
-            event = Event.USELESS_ACTION;
+            event = Event.VOID_GATHERED;
 
         setChanged();
         notifyObservers(event);
@@ -139,7 +139,7 @@ public class Manor extends Environment {
     }
 
     private Case getAgentCase() {
-        return getStateSnapshot().getCase(agentPosition);
+        return state.getCase(agentPosition);
     }
 
     private void updateAgentPosition(Position newPos) {
