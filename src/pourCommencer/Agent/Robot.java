@@ -32,7 +32,7 @@ public class Robot implements Runnable {
          * que par ses capteurs et ses effecteurs */
 
         this.perfCounter = env.getPerfCounter();
-        this.exploFrequency = new ExplorationFrequency(0.1);
+        this.exploFrequency = new ExplorationFrequency(0.5);
         this.bras = new EffecteurArm(env);
         this.aspiration = new EffecteurAspiration(env);
         this.mouvement = new EffecteurMouvement(env);
@@ -288,24 +288,20 @@ public class Robot implements Runnable {
     ) {
         LinkedList<Action> intentions = new LinkedList<>();
 
-        //For the test choose several intentions
-        int countActions2Generate = ThreadLocalRandom.current().nextInt(10);
-        for(int i = 0; i < countActions2Generate; i++) {
-            // Ramasse les bijoux avant d'aspirer
-            if (actionsPossible.contains(Action.GATHER_JEWELRY))
-                intentions.push(Action.GATHER_JEWELRY);
+        // Ramasse les bijoux avant d'aspirer
+        if (actionsPossible.contains(Action.GATHER_JEWELRY))
+            intentions.push(Action.GATHER_JEWELRY);
 
-            else if (actionsPossible.contains(Action.VACUUM_DUST))
-                intentions.push(Action.VACUUM_DUST);
+        else if (actionsPossible.contains(Action.VACUUM_DUST))
+            intentions.push(Action.VACUUM_DUST);
 
-            else {
-                // A random move
-                ThreadLocalRandom random = ThreadLocalRandom.current();
-                int countPossibleActions = actionsPossible.size();
-                int actionNumber = random.nextInt(countPossibleActions);
+        else {
+            // A random move
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            int countPossibleActions = actionsPossible.size();
+            int actionNumber = random.nextInt(countPossibleActions);
 
-                intentions.push((Action) (actionsPossible.toArray())[actionNumber]);
-            }
+            intentions.push((Action) (actionsPossible.toArray())[actionNumber]);
         }
 
         return intentions;
