@@ -1,7 +1,5 @@
 package pourCommencer.Agent;
 
-import pourCommencer.Environment.Action;
-import pourCommencer.Environment.ActionType;
 import pourCommencer.Environment._Environment;
 
 /* On gère pas les collisions ici, le robot a
@@ -15,18 +13,18 @@ public class EffecteurMouvement {
     }
 
     public void moveUp() {
-        env.triggerAction(new Action(ActionType.MOVE_UP));
+        env.agentDoMoveUp();
     }
 
     public void moveDown() {
-        env.triggerAction(new Action(ActionType.MOVE_DOWN));
+        env.agentDoMoveDown();
     }
 
     public void moveLeft() {
-        env.triggerAction(new Action(ActionType.MOVE_LEFT));
+        env.agentDoMoveLeft();
     }
 
     public void moveRight() {
-        env.triggerAction(new Action(ActionType.MOVE_RIGHT));
+        env.agentDoMoveRight();
     }
 }

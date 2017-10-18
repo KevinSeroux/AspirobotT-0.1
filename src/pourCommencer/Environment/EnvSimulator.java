@@ -56,10 +56,10 @@ public class EnvSimulator implements Runnable {
     }
 
     private void generateJewelAt(Position pos) {
-        this.env.getState().getCase(pos).addEnvObject(EnvObject.JEWELRY);
+        this.env.placeJewelAt(pos);
     }
 
     private void generateDustAt(Position pos) {
-        this.env.getState().getCase(pos).addEnvObject(EnvObject.DUST);
+        this.env.placeDustAt(pos);
     }
 }

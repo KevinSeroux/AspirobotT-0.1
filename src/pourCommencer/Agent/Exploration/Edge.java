@@ -1,13 +1,13 @@
 package pourCommencer.Agent.Exploration;
 
-import pourCommencer.Environment.ActionType;
+import pourCommencer.Agent.Action;
 
 public class Edge {
         public Noeud start;
         public Noeud end;
-        public ActionType action;
+        public Action action;
 
-    public Edge(Noeud start, Noeud end, ActionType action) {
+    public Edge(Noeud start, Noeud end, Action action) {
         this.start = start;
         this.end = end;
         this.action = action;

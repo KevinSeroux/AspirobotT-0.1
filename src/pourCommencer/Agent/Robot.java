@@ -15,7 +15,7 @@ class MentalState {
     EnvState beliefs;
     enum Desire { DEFAULT, DUST, JEWEL}
     Desire goal;
-    LinkedList<ActionType> intentions;
+    LinkedList<Action> intentions;
 }
 
 public class Robot implements Runnable {
@@ -97,7 +97,7 @@ public class Robot implements Runnable {
 
     }
 
-    private LinkedList<ActionType> explorationLargeur(MentalState m) throws explorationLargeurNotFoundException, ExpandActionTypeException {
+    private LinkedList<Action> explorationLargeur(MentalState m) throws explorationLargeurNotFoundException, ExpandActionTypeException {
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
         Noeud origine = new Noeud(null, e,0, 0,initiale); //Position actuelle du robot ?
@@ -119,13 +119,13 @@ public class Robot implements Runnable {
             fringe.addAll(expand(node));
         }
         if(trouve){
-            LinkedList<ActionType> todo = new LinkedList<>();
+            LinkedList<Action> todo = new LinkedList<>();
             System.out.println("Dernier noeud position "+node.getPositionRobot().x + " "+ node.getPositionRobot().y);
             while(node != origine){
                 todo.push(node.getParent().getSuccessor().get(node));
                 node = node.getParent();
             }
-            for (ActionType a:todo
+            for (Action a:todo
                  ) {
                 System.out.println("Action : "+a);
             }
@@ -147,11 +147,10 @@ public class Robot implements Runnable {
         LinkedList<Noeud> successors = new LinkedList<>();
         Noeud s;
         Position futurePosition = null;
-        for (ActionType a:possibleActionsByPosition(node.getEnvironnement(),node.getPositionRobot())) {
+        for (Action a:possibleActionsByPosition(node.getEnvironnement(),node.getPositionRobot())) {
             switch (a) {
                 case VACUUM_DUST:
                 case GATHER_JEWELRY:
-                case VACCUM_JEWELRY:
                     futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y); //TODO faire une methode gauche droite & co ca pourrait être sympa :D -Max
                     break;
                 case MOVE_UP:
@@ -166,11 +165,10 @@ public class Robot implements Runnable {
                 case MOVE_RIGHT:
                     futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y+1);
                     break;
-                case NEW_DUST:
-                case NEW_JEWELRY:
+                default:
                     throw new ExpandActionTypeException();
             }
-            s = new Noeud(node,node.getEnvironnement(),node.getPathCost() + 1,node.getProfondeur()+1, futurePosition); //TODO remplacer 1 par ActionType.getCoutAction()
+            s = new Noeud(node,node.getEnvironnement(),node.getPathCost() + 1,node.getProfondeur()+1, futurePosition); //TODO remplacer 1 par Action.getCoutAction()
             node.addSuccessor(s,a);
             successors.add(s);
         }
@@ -178,27 +176,27 @@ public class Robot implements Runnable {
     }
 
 
-    private Set<ActionType> possibleActionsByPosition(EnvState belief, Position p) {
-        Set<ActionType> actionsList = new HashSet<>();
+    private Set<Action> possibleActionsByPosition(EnvState belief, Position p) {
+        Set<Action> actionsList = new HashSet<>();
         int envSize = belief.getEnvSize();
 
         if(p.x >= 1)
-            actionsList.add(ActionType.MOVE_UP);
+            actionsList.add(Action.MOVE_UP);
 
         if(p.x < envSize - 1)
-            actionsList.add(ActionType.MOVE_DOWN);
+            actionsList.add(Action.MOVE_DOWN);
 
         if(p.y >= 1)
-            actionsList.add(ActionType.MOVE_LEFT);
+            actionsList.add(Action.MOVE_LEFT);
 
         if(p.y < envSize - 1)
-            actionsList.add(ActionType.MOVE_RIGHT);
+            actionsList.add(Action.MOVE_RIGHT);
 
         if(SensorVision.isCaseDirtyAt(belief, p))
-            actionsList.add(ActionType.VACUUM_DUST);
+            actionsList.add(Action.VACUUM_DUST);
 
         if(SensorVision.doesCaseHaveJewelery(belief, p))
-            actionsList.add(ActionType.GATHER_JEWELRY);
+            actionsList.add(Action.GATHER_JEWELRY);
 
         return actionsList;
     }
@@ -225,7 +223,7 @@ public class Robot implements Runnable {
         MentalState mentalState = new MentalState();
         mentalState.beliefs = vision.snapshotState();
         mentalState.goal = chooseGoal(mentalState.beliefs);
-        Set<ActionType> actionsPossible = possibleActions(mentalState.beliefs);
+        Set<Action> actionsPossible = possibleActions(mentalState.beliefs);
         mentalState.intentions = chooseIntentions(mentalState.goal, actionsPossible);
 
         return mentalState;
@@ -258,47 +256,47 @@ public class Robot implements Runnable {
     //DONE Changé par Max pour x et y
     /* L'agent s'interroge ici sur les actions qu'il peut faire.
      * Il trie les actions n'apportant pas d'intérêt */
-    private Set<ActionType> possibleActions(EnvState belief) {
-        Set<ActionType> actionsList = new HashSet<>();
+    private Set<Action> possibleActions(EnvState belief) {
+        Set<Action> actionsList = new HashSet<>();
         int envSize = belief.getEnvSize();
         Position pos = getAgentPosition(belief);
 
         if(pos.x >= 1)
-            actionsList.add(ActionType.MOVE_UP);
+            actionsList.add(Action.MOVE_UP);
 
         if(pos.x < envSize - 1)
-            actionsList.add(ActionType.MOVE_DOWN);
+            actionsList.add(Action.MOVE_DOWN);
 
         if(pos.y >= 1)
-            actionsList.add(ActionType.MOVE_LEFT);
+            actionsList.add(Action.MOVE_LEFT);
 
         if(pos.y < envSize - 1)
-            actionsList.add(ActionType.MOVE_RIGHT);
+            actionsList.add(Action.MOVE_RIGHT);
 
         if(SensorVision.isCaseDirtyAt(belief, pos))
-            actionsList.add(ActionType.VACUUM_DUST);
+            actionsList.add(Action.VACUUM_DUST);
 
         if(SensorVision.doesCaseHaveJewelery(belief, pos))
-            actionsList.add(ActionType.GATHER_JEWELRY);
+            actionsList.add(Action.GATHER_JEWELRY);
 
         return actionsList;
     }
 
     //TODO goal et liste d'intentions
-    private LinkedList<ActionType> chooseIntentions(
-            MentalState.Desire goal, Set<ActionType> actionsPossible
+    private LinkedList<Action> chooseIntentions(
+            MentalState.Desire goal, Set<Action> actionsPossible
     ) {
-        LinkedList<ActionType> intentions = new LinkedList<>();
+        LinkedList<Action> intentions = new LinkedList<>();
 
         //For the test choose several intentions
         int countActions2Generate = ThreadLocalRandom.current().nextInt(10);
         for(int i = 0; i < countActions2Generate; i++) {
             // Ramasse les bijoux avant d'aspirer
-            if (actionsPossible.contains(ActionType.GATHER_JEWELRY))
-                intentions.push(ActionType.GATHER_JEWELRY);
+            if (actionsPossible.contains(Action.GATHER_JEWELRY))
+                intentions.push(Action.GATHER_JEWELRY);
 
-            else if (actionsPossible.contains(ActionType.VACUUM_DUST))
-                intentions.push(ActionType.VACUUM_DUST);
+            else if (actionsPossible.contains(Action.VACUUM_DUST))
+                intentions.push(Action.VACUUM_DUST);
 
             else {
                 // A random move
@@ -306,16 +304,16 @@ public class Robot implements Runnable {
                 int countPossibleActions = actionsPossible.size();
                 int actionNumber = random.nextInt(countPossibleActions);
 
-                intentions.push((ActionType) (actionsPossible.toArray())[actionNumber]);
+                intentions.push((Action) (actionsPossible.toArray())[actionNumber]);
             }
         }
 
         return intentions;
     }
 
-    private void executeAction(ActionType actionType) {
-        if(actionType != null) {
-            switch (actionType) {
+    private void executeAction(Action action) {
+        if(action != null) {
+            switch (action) {
                 case VACUUM_DUST:
                     aspiration.aspirer();
                     break;

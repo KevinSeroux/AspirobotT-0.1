@@ -1,15 +1,14 @@
 package pourCommencer.Agent.Exploration;
-import pourCommencer.Environment.ActionType;
+import pourCommencer.Agent.Action;
 import pourCommencer.Environment.EnvState;
 import pourCommencer.Environment.Position;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 
 public class Noeud {
     private Noeud parent;
     private int pathCost;
-    HashMap<Noeud,ActionType> successor;
+    HashMap<Noeud,Action> successor;
     EnvState environnement;
     private int profondeur;
 
@@ -29,11 +28,11 @@ public class Noeud {
         this.pathCost = pathCost;
     }
 
-    public HashMap<Noeud, ActionType> getSuccessor() {
+    public HashMap<Noeud, Action> getSuccessor() {
         return successor;
     }
 
-    public void addSuccessor(Noeud n, ActionType a) {
+    public void addSuccessor(Noeud n, Action a) {
         this.successor.put(n,a);
     }
 

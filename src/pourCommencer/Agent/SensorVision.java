@@ -14,7 +14,7 @@ public class SensorVision {
 
     // Retourne une snapshot de l'env
     public EnvState snapshotState() {
-        return new EnvState(env.getState());
+        return new EnvState(env.getStateSnapshot());
     }
 
     public int getEnvSize() {

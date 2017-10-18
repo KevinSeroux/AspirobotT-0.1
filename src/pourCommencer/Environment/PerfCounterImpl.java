@@ -1,6 +1,11 @@
 package pourCommencer.Environment;
 
+import pourCommencer.Agent.Action;
+import pourCommencer.Event;
+
 import java.util.Observable;
+
+import static pourCommencer.Agent.Action.VACUUM_DUST;
 
 public class PerfCounterImpl extends PerformanceCounter {
 	private final static double alpha = 3;
@@ -32,33 +37,55 @@ public class PerfCounterImpl extends PerformanceCounter {
 
 	@Override
 	public void update(Observable observable, Object o) {
-		Action envObject = (Action)o;
-		boolean isAgentAction = true;
+		Event event = (Event) o;
 
-		switch(envObject.type) {
-			case NEW_DUST:
-				isAgentAction = false;
+		switch(event) {
+			case DUST_GENERATED:
 				nbDirtGenere++;
 				break;
 
-			case VACUUM_DUST:
+			case DUST_VACCUMED:
 				nbDirtAspire++;
+				nbAction++;
 				break;
 
-			case VACCUM_JEWELRY:
-				nbJewelAspire++;
-				break;
-
-			case NEW_JEWELRY:
-				isAgentAction = false;
+			case JEWELRY_GENERATED:
 				nbJewelGenere++;
 				break;
 
-			case GATHER_JEWELRY:
+			case JEWELRY_GATHERED:
 				nbJewelRamasse++;
+				nbAction++;
+				break;
+
+			case JEWELRY_VACCUMED:
+				nbJewelAspire++;
+				nbAction++;
+				break;
+
+			case AGENT_MOVED:
+				nbAction++;
+				break;
+
+			case AGENT_HIT_NORTH:
+				nbAction++;
+				break;
+
+			case AGENT_HIT_SOUTH:
+				nbAction++;
+				break;
+
+			case AGENT_HIT_WEST:
+				nbAction++;
+				break;
+
+			case AGENT_HIT_EST:
+				nbAction++;
+				break;
+
+			case USELESS_ACTION:
+				nbAction++;
 				break;
 		}
-
-		if(isAgentAction) nbAction++;
 	}
 }

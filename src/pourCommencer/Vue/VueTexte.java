@@ -3,6 +3,7 @@ package pourCommencer.Vue;
 import pourCommencer.Agent.Robot;
 import pourCommencer.Environment.Environment;
 import pourCommencer.Environment.Position;
+import pourCommencer.Event;
 
 import java.util.Observable;
 import java.util.Observer;
@@ -56,7 +57,7 @@ public class VueTexte implements _Vue, Runnable, Observer {
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 Position pos = new Position(i, j);
-                representation += env.getState().getCase(pos) + "|";
+                representation += env.getStateSnapshot().getCase(pos) + "|";
             }
             representation += "\n";
             for (int j = 0; j < size; j++) {
@@ -69,6 +70,9 @@ public class VueTexte implements _Vue, Runnable, Observer {
 
     // Débloque le sémaphore pour que run() poursuit
     public void update(Observable o, Object arg) {
+        Event event = (Event)arg;
+        System.out.println("New event: " + event.toString());
+
         semaphore.release();
     }
 }

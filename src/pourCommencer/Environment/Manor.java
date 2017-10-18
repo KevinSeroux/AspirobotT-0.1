@@ -1,117 +1,145 @@
 package pourCommencer.Environment;
 
+import pourCommencer.Event;
+
+//TODO: Notifications
 public class Manor extends Environment {
 
-    private int size;
     private EnvState state;
     private Position agentPosition;
 
     public Manor(PerformanceCounter perfCounter, int manorSize, Position caseDepartRobot) {
         super(perfCounter);
-
-        this.size = manorSize;
-        this.state = new EnvState(size);
+        this.state = new EnvState(manorSize);
 
         updateAgentPosition(caseDepartRobot);
     }
 
     @Override
     public int getSize() {
-        return size;
+        return state.getEnvSize();
+    }
+
+    // Return a copy of the current state, a modification won't work
+    @Override
+    public EnvState getStateSnapshot() {
+        EnvState copy = new EnvState(state);
+        return copy;
     }
 
     @Override
-    public void triggerAction(Action action) {
-        ActionType type = action.type;
+    public void placeDustAt(Position pos) {
+        state.getCase(pos).addEnvObject(EnvObject.DUST);
+        setChanged();
+        notifyObservers(Event.DUST_GENERATED);
+    }
 
-        switch(type) {
-            //TODO: Notify observer
-            case NEW_DUST: {
-                Position pos = (Position) action.data;
-                state.getCase(pos).addEnvObject(EnvObject.DUST);
-                break;
-            }
+    @Override
+    public void placeJewelAt(Position pos) {
+        state.getCase(pos).addEnvObject(EnvObject.JEWELRY);
+        setChanged();
+        notifyObservers(Event.JEWELRY_GENERATED);
+    }
 
-            case NEW_JEWELRY: {
-                Position pos = (Position) action.data;
-                state.getCase(pos).removeEnvObject(EnvObject.JEWELRY);
-                break;
-            }
+    /* On surcharge chaque action par défaut car ce n'est pas
+     * parce qu'un agent veut faire quelque chose qu'il le peut */
 
-            default:
-                actionAgent(type);
-                break;
+    @Override
+    public void agentDoVaccumDust() {
+        Event event = Event.DUST_VACCUMED;
+
+        // If the remove succeed, then we suppose there was a jewel
+        if(getAgentCase().removeEnvObject(EnvObject.JEWELRY)) {
+            event = Event.JEWELRY_VACCUMED;
+            setChanged();
+            notifyObservers(event);
+        }
+
+        // If there was no dust it is an useless action;
+        if(!getAgentCase().removeEnvObject(EnvObject.DUST))
+            event = Event.USELESS_ACTION;
+
+        setChanged();
+        notifyObservers(event);
+    }
+
+    @Override
+    public void agentDoGatherJewel() {
+        Event event = Event.JEWELRY_GATHERED;
+
+        if(!getAgentCase().removeEnvObject(EnvObject.JEWELRY))
+            event = Event.USELESS_ACTION;
+
+        setChanged();
+        notifyObservers(event);
+    }
+
+    @Override
+    public void agentDoMoveUp() {
+        Event event = Event.AGENT_MOVED;
+        Position pos = new Position(agentPosition);
+
+        if(pos.x == 0)
+            event = Event.AGENT_HIT_NORTH;
+        else {
+            pos.x--;
+            updateAgentPosition(pos);
         }
 
         setChanged();
-        notifyObservers(action);
+        notifyObservers(event);
     }
 
-    private void actionAgent(ActionType actionType) {
-        switch(actionType) {
-            case VACUUM_DUST: {
-                Case agentCase = state.getCase(agentPosition);
-                agentCase.removeEnvObject(EnvObject.DUST);
-
-                if (agentCase.containsEnvObject(EnvObject.JEWELRY)) {
-                    setChanged();
-                    notifyObservers(new Action(ActionType.VACCUM_JEWELRY));
-                    /* Si la case actuelle contient aussi un bijoux on execute
-                     * aussi le case GATHER_JEWELRY */
-                }
-                else
-                    break;
-            }
-
-            /* Ne rien mettre entre VACCUM_DUST ET GATHER_JEWELRY,
-             * voir autre commentaire ci-dessus */
-            case GATHER_JEWELRY:
-                state.getCase(agentPosition).removeEnvObject(EnvObject.JEWELRY);
-                break;
-
-            default:
-                moveAgent(actionType);
-                break;
-        }
-    }
-
-    private void moveAgent(ActionType actionType) {
+    @Override
+    public void agentDoMoveDown() {
+        Event event = Event.AGENT_MOVED;
         Position pos = new Position(agentPosition);
 
-        switch(actionType) {
-            case MOVE_UP:
-                if(pos.x == 0)
-                    System.out.println("The agent hits the north wall");
-                else
-                    pos.x--;
-                break;
-
-            case MOVE_DOWN:
-                if(pos.x == size - 1)
-                    System.out.println("The agent hits the south wall");
-                else
-                    pos.x++;
-                break;
-
-            case MOVE_LEFT:
-                if(pos.y == 0)
-                    System.out.println("The agent hits the west wall");
-                else
-                    pos.y--;
-                break;
-
-            case MOVE_RIGHT:
-                if(pos.y == size - 1)
-                    System.out.println("The agent hits the est wall");
-                else
-                    pos.y++;
-                break;
-
-            default:
-                throw new RuntimeException("Unknown move action for the agent");
+        if(pos.x == getSize() - 1)
+            event = Event.AGENT_HIT_SOUTH;
+        else {
+            pos.x++;
+            updateAgentPosition(pos);
         }
 
-        updateAgentPosition(pos);
+        setChanged();
+        notifyObservers(event);
+    }
+
+    @Override
+    public void agentDoMoveLeft() {
+        Event event = Event.AGENT_MOVED;
+        Position pos = new Position(agentPosition);
+
+        if(pos.y == 0)
+            event = Event.AGENT_HIT_WEST;
+        else {
+            pos.y--;
+            updateAgentPosition(pos);
+        }
+
+        setChanged();
+        notifyObservers(event);
+    }
+
+    @Override
+    public void agentDoMoveRight() {
+        Event event = Event.AGENT_MOVED;
+        Position pos = new Position(agentPosition);
+
+        if(pos.y == getSize() - 1)
+            event = Event.AGENT_HIT_EST;
+        else {
+            pos.y++;
+            updateAgentPosition(pos);
+        }
+
+        setChanged();
+        notifyObservers(event);
+    }
+
+    private Case getAgentCase() {
+        return getStateSnapshot().getCase(agentPosition);
     }
 
     private void updateAgentPosition(Position newPos) {
@@ -123,12 +151,8 @@ public class Manor extends Environment {
     }
 
     @Override
-    public EnvState getState() {
-        return state;
-    }
-
-    @Override
     public String toString() {
+        int size = getSize();
         String representation = "";
         for (int i = 0; i < size; i++) {
             representation += "-----";
