@@ -147,7 +147,7 @@ public class Robot implements Runnable {
                 case VACUUM_DUST:
                 case GATHER_JEWELRY:
                 case VACCUM_JEWELRY:
-                    futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y);
+                    futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y); //TODO faire une methode gauche droite & co ca pourrait être sympa :D -Max
                     break;
                 case MOVE_UP:
                     futurePosition = new Position(node.getPositionRobot().x-1,node.getPositionRobot().y);
@@ -250,6 +250,7 @@ public class Robot implements Runnable {
     }
 
     //TODO C'est faux ici (inversion x et y)
+    //DONE Changé par Max pour x et y
     /* L'agent s'interroge ici sur les actions qu'il peut faire.
      * Il trie les actions n'apportant pas d'intérêt */
     private Set<ActionType> possibleActions(EnvState belief) {
@@ -257,16 +258,16 @@ public class Robot implements Runnable {
         int envSize = belief.getEnvSize();
         Position pos = getAgentPosition(belief);
 
-        if(pos.y >= 1)
+        if(pos.x >= 1)
             actionsList.add(ActionType.MOVE_UP);
 
-        if(pos.y < envSize - 1)
+        if(pos.x < envSize - 1)
             actionsList.add(ActionType.MOVE_DOWN);
 
-        if(pos.x >= 1)
+        if(pos.y >= 1)
             actionsList.add(ActionType.MOVE_LEFT);
 
-        if(pos.x < envSize - 1)
+        if(pos.y < envSize - 1)
             actionsList.add(ActionType.MOVE_RIGHT);
 
         if(SensorVision.isCaseDirtyAt(belief, pos))

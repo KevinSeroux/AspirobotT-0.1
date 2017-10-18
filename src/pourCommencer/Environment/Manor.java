@@ -79,31 +79,31 @@ public class Manor extends Environment {
 
         switch(actionType) {
             case MOVE_UP:
-                if(pos.y == 0)
-                    System.out.println("The agent hits the north wall");
-                else
-                    pos.y--;
-                break;
-
-            case MOVE_DOWN:
-                if(pos.y == size - 1)
-                    System.out.println("The agent hits the south wall");
-                else
-                    pos.y++;
-                break;
-
-            case MOVE_LEFT:
                 if(pos.x == 0)
-                    System.out.println("The agent hits the west wall");
+                    System.out.println("The agent hits the north wall");
                 else
                     pos.x--;
                 break;
 
-            case MOVE_RIGHT:
+            case MOVE_DOWN:
                 if(pos.x == size - 1)
-                    System.out.println("The agent hits the est wall");
+                    System.out.println("The agent hits the south wall");
                 else
                     pos.x++;
+                break;
+
+            case MOVE_LEFT:
+                if(pos.y == 0)
+                    System.out.println("The agent hits the west wall");
+                else
+                    pos.y--;
+                break;
+
+            case MOVE_RIGHT:
+                if(pos.y == size - 1)
+                    System.out.println("The agent hits the est wall");
+                else
+                    pos.y++;
                 break;
 
             default:
@@ -129,7 +129,7 @@ public class Manor extends Environment {
     @Override
     public String toString() {
         String representation = "";
-        for (int j = 0; j < size; j++) {
+        for (int i = 0; i < size; i++) {
             representation += "-----";
         }
         representation += "\n";

@@ -22,10 +22,8 @@ public class VueTexte implements _Vue, Runnable, Observer {
         while(true) {
             try {
                 semaphore.acquire();
-
                 System.out.println(this);
                 System.out.println("Performance : " + env.getPerfCounter().getPerformance());
-
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
