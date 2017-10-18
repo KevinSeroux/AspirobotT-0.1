@@ -31,7 +31,7 @@ public class VueTexte implements _Vue, Runnable, Observer {
                 double exploFreq = robot.getExplorationFrequency().get();
                 boolean agentIsTraining = robot.getExplorationFrequency().isTraining();
 
-                System.out.println(this);
+                System.out.println(env.getStateSnapshot());
                 System.out.println("Performance: " + perf);
 
                 if(agentIsTraining)
@@ -43,29 +43,6 @@ public class VueTexte implements _Vue, Runnable, Observer {
                 e.printStackTrace();
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        int size = env.getSize();
-
-        String representation = "";
-        for (int i = 0; i < size; i++) {
-            representation += "-----";
-        }
-        representation += "\n";
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                Position pos = new Position(i, j);
-                representation += env.getStateSnapshot().getCase(pos) + "|";
-            }
-            representation += "\n";
-            for (int j = 0; j < size; j++) {
-                representation += "-----";
-            }
-            representation += "\n";
-        }
-        return representation;
     }
 
     // Débloque le sémaphore pour que run() poursuit

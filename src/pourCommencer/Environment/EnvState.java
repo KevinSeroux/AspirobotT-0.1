@@ -31,4 +31,29 @@ public class EnvState {
 	public int getEnvSize() {
 		return size;
 	}
+
+	@Override
+	public String toString() {
+		StringBuilder representation = new StringBuilder();
+
+		for (int i = 0; i < size; i++) {
+			representation.append("-----");
+		}
+		representation.append('\n');
+
+		for (int i = 0; i < size; i++) {
+			for (int j = 0; j < size; j++) {
+				Case aCase = getCase(new Position(i, j));
+				representation.append(aCase + "|");
+			}
+			representation.append('\n');
+
+			for (int j = 0; j < size; j++) {
+				representation.append("-----");
+			}
+			representation.append('\n');
+		}
+
+		return representation.toString();
+	}
 }

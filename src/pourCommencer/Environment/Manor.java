@@ -149,25 +149,4 @@ public class Manor extends Environment {
         this.agentPosition = newPos;
         state.getCase(newPos).addEnvObject(EnvObject.ROBOT);
     }
-
-    @Override
-    public String toString() {
-        int size = getSize();
-        String representation = "";
-        for (int i = 0; i < size; i++) {
-            representation += "-----";
-        }
-        representation += "\n";
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                representation += state.getCase(new Position(i, j)) + "|";
-            }
-            representation += "\n";
-            for (int j = 0; j < size; j++) {
-                representation += "-----";
-            }
-            representation += "\n";
-        }
-        return representation;
-    }
 }
