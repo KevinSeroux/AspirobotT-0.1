@@ -49,8 +49,8 @@ public class Robot implements Runnable {
 
     @Override
     public void run() {
-        stupidRobot();
-        //robotWithExploration();
+        //stupidRobot();
+        robotWithExploration();
     }
 
     private void stupidRobot() {
@@ -141,8 +141,20 @@ public class Robot implements Runnable {
     private boolean goalTest(MentalState m, Noeud node) {
         //System.out.println("Position : x : " + node.getPositionRobot().x+ ", y : "+node.getPositionRobot().y);
         Case caseCourante = node.getEnvironnement().getCase(node.getPositionRobot());
-        if(caseCourante.containsEnvObject(EnvObject.DUST) && m.goal == MentalState.Desire.DUST) return true;
-        return caseCourante.containsEnvObject(EnvObject.JEWELRY) && m.goal == MentalState.Desire.JEWEL;
+        if(caseCourante.containsEnvObject(EnvObject.DUST) && m.goal == MentalState.Desire.DUST){
+            if(node.getParent().getSuccessor().get(node) == ActionType.VACUUM_DUST) return true;
+            return false;
+        }
+
+        if(caseCourante.containsEnvObject(EnvObject.JEWELRY) && m.goal == MentalState.Desire.JEWEL){
+            if(node.getParent().getSuccessor().get(node) == ActionType.GATHER_JEWELRY) return true;
+            return false;
+        }
+        /*if (m.goal == MentalState.Desire.DEFAULT){
+            if(node.getParent().getSuccessor().get(node) == ActionType.DO_NOTHING) return true;
+            return false;
+        }*/
+        return false;
     }
 
     private Collection<? extends Noeud> expand(Noeud node) throws ExpandActionTypeException {
