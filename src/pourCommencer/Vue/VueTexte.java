@@ -28,11 +28,14 @@ public class VueTexte implements _Vue, Runnable, Observer {
 
                 double perf = env.getPerfCounter().get();
                 double exploFreq = robot.getExplorationFrequency().get();
-                boolean isTraining = robot.getExplorationFrequency().isTraining();
+                boolean agentIsTraining = robot.getExplorationFrequency().isTraining();
 
                 System.out.println(this);
                 System.out.println("Performance: " + perf);
-                System.out.println("Agent is training: " + isTraining);
+
+                if(agentIsTraining)
+                    System.out.println("Agent is training");
+
                 System.out.println("Agent exploration frequency: " + exploFreq);
 
             } catch (InterruptedException e) {

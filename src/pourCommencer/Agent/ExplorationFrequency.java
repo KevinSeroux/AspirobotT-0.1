@@ -18,14 +18,13 @@ public class ExplorationFrequency {
 
 	public ExplorationFrequency(double initialValue) {
 		remainingFailCount = 3;
-		bestExploFreq = initialValue;
-
+		bestExploFreq = randomExploFreq = initialValue;
 		random = ThreadLocalRandom.current();
 		reset();
 	}
 
 	public boolean isTraining() {
-		return remainingFailCount > 0;
+		return remainingFailCount >= 0;
 	}
 
 	public double get() {
@@ -52,6 +51,7 @@ public class ExplorationFrequency {
 			if(remainingLearnExample == 0) {
 				// If the random freq gave better results, keep it
 				updateBestFrequency();
+				randomExploFreq = random.nextDouble(0.1, 1);
 				reset();
 			}
 		}
@@ -72,7 +72,6 @@ public class ExplorationFrequency {
 
 	private void reset() {
 		remainingLearnExample = EXAMPLE_COUNT;
-		randomExploFreq = random.nextDouble(0.1, 1);
 		randomExploSlope = 0;
 	}
 

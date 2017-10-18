@@ -32,7 +32,7 @@ public class Robot implements Runnable {
          * que par ses capteurs et ses effecteurs */
 
         this.perfCounter = env.getPerfCounter();
-        this.exploFrequency = new ExplorationFrequency(1);
+        this.exploFrequency = new ExplorationFrequency(0.1);
         this.bras = new EffecteurArm(env);
         this.aspiration = new EffecteurAspiration(env);
         this.mouvement = new EffecteurMouvement(env);
@@ -62,6 +62,9 @@ public class Robot implements Runnable {
                 mentalState = buildMentalState();
 
             executeAction(mentalState.intentions.poll());
+
+            // Notifie le système d'apprentissage de la performance de l'action
+            exploFrequency.addMeasure(perfCounter.get());
         }
     }
 
@@ -287,8 +290,9 @@ public class Robot implements Runnable {
     ) {
         LinkedList<ActionType> intentions = new LinkedList<>();
 
-        //For the test choose 10 intentions
-        for(int i = 0; i < 10; i++) {
+        //For the test choose several intentions
+        int countActions2Generate = ThreadLocalRandom.current().nextInt(10);
+        for(int i = 0; i < countActions2Generate; i++) {
             // Ramasse les bijoux avant d'aspirer
             if (actionsPossible.contains(ActionType.GATHER_JEWELRY))
                 intentions.push(ActionType.GATHER_JEWELRY);
@@ -340,9 +344,6 @@ public class Robot implements Runnable {
                     break;
             }
         }
-
-        // Notifie le système d'apprentissage de la performance de l'action
-        exploFrequency.addMeasure(perfCounter.get());
 
         // Simule le temps pour faire une action
         try {
