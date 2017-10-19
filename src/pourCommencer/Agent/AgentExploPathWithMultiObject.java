@@ -18,7 +18,7 @@ import static pourCommencer.Agent.SensorVision.*;
  */
 public class AgentExploPathWithMultiObject extends Robot {
 
-    private static final int PROFONDEUR_MAX = 10;
+    private static final int PROFONDEUR_MAX = 20; // <-------------- ici aussi
 
     public AgentExploPathWithMultiObject(Environment env) {
         super(env);
@@ -91,8 +91,9 @@ public class AgentExploPathWithMultiObject extends Robot {
                 break; //retunr failure
             }
             node = fringe.removeFirst();
-            if (node.getProfondeur() < PROFONDEUR_MAX)
+            if (node.getProfondeur() < PROFONDEUR_MAX && node.getPerformance() > -10) //J'ai changé ici
                 fringe.addAll(expand(node));
+            else node = null;
         }
         if(trouve){
             LinkedList<Action> todo = new LinkedList<>();
@@ -135,11 +136,12 @@ public class AgentExploPathWithMultiObject extends Robot {
         int performance;
         for (Action a:possibleActionsByPositionEtMarquage(node.getEnvironnement(),node.getPositionRobot())) {
             performance = node.getPerformance() -1;
-            env = new EnvState(node.getEnvironnement());
+            env = node.getEnvironnement();//env = new EnvState(node.getEnvironnement()); <-----------------------------
             env.getCase(node.getPositionRobot()).addEnvObject(EnvObject.ROBOT);
             switch (a) {
                 case VACUUM_DUST:
                     if(isCaseDirtyAt(node.getEnvironnement(),node.getPositionRobot())){
+                        env = new EnvState(env);
                         performance+=10;
                         env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.DUST);
                         if (isCaseJewelAt(node.getEnvironnement(),node.getPositionRobot())) {
@@ -151,6 +153,7 @@ public class AgentExploPathWithMultiObject extends Robot {
                     if(a == Action.GATHER_JEWELRY && isCaseJewelAt(node.getEnvironnement(),node.getPositionRobot())){
                         //performance+=Action.VACUUM_DUST.getPerf() - Action.VACUUM_DUST.getCoutAction(); //TODO
                         performance+=20;
+                        if(env != node.getEnvironnement()) env=new EnvState(env);
                         env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.JEWELRY);
                     }
                     futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y);

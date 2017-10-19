@@ -18,7 +18,7 @@ import static pourCommencer.Agent.SensorVision.isCaseJewelAt;
  * Cette classe peut utiliser plusieurs algorithmes d'exploration non informée. Cependant, un profondeur max de recherche
  * et l'utilisation de marqueur dans l'environnement ont été utiliser pour soulager la mémoire (car il peut y avoir des boucles)
  */
-public class AgentExploStupide extends Robot {
+public class AgentExploMonoObject extends Robot {
 
 
     protected static final int PROFONDEUR_MAX = 20;
@@ -28,7 +28,7 @@ public class AgentExploStupide extends Robot {
      */
     private ArrayList<MentalState.Desire> impossibleGoal= new ArrayList<>();
 
-    public AgentExploStupide(Environment env) {
+    public AgentExploMonoObject(Environment env) {
         super(env);
     }
 

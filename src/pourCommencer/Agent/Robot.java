@@ -13,6 +13,10 @@ class MentalState {
     LinkedList<Action> intentions;
 }
 
+/**
+ * Classe facade implementant le minimum pour que l'agent vive
+ * Pour des algorithmes plus avancer, se repporter aux classes filles
+ */
 public class Robot implements Runnable {
 
 
@@ -49,6 +53,10 @@ public class Robot implements Runnable {
         stupidRobot();
     }
 
+    /**
+     * Agent stupide qui se déplace sans but de manière aléatoire
+     * et qui ramasse ce qui est sur son chemin
+     */
     private void stupidRobot() {
         // Execute all actions for the first observation
         MentalState mentalState = buildMentalState();
@@ -98,7 +106,6 @@ public class Robot implements Runnable {
         return doObserve;
     }
 
-    //TODO
     private MentalState.Desire chooseGoal(EnvState belief) {
         return MentalState.Desire.DEFAULT;
     }
