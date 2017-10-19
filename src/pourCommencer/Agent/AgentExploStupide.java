@@ -10,11 +10,22 @@ import static pourCommencer.Agent.SensorVision.getAgentPosition;
 import static pourCommencer.Agent.SensorVision.isCaseDirtyAt;
 import static pourCommencer.Agent.SensorVision.isCaseJewelAt;
 
+/**
+ * Cette classe modélise un agent ayant des désires simples mais pas optimaux (seulement le plus proche)
+ * Si un bijoux est dans l'environement alors il va le chercher
+ * Sinon si une poussière est dans l'environnement il va la chercher
+ *
+ * Cette classe peut utiliser plusieurs algorithmes d'exploration non informée. Cependant, un profondeur max de recherche
+ * et l'utilisation de marqueur dans l'environnement ont été utiliser pour soulager la mémoire (car il peut y avoir des boucles)
+ */
 public class AgentExploStupide extends Robot {
 
 
     protected static final int PROFONDEUR_MAX = 20;
 
+    /**
+     * Permet de modéliser les buts où l'exploration a échouée
+     */
     private ArrayList<MentalState.Desire> impossibleGoal= new ArrayList<>();
 
     public AgentExploStupide(Environment env) {
@@ -26,37 +37,10 @@ public class AgentExploStupide extends Robot {
         robotWithExploration();
     }
 
+    /**
+     * Coeur du cycle de vie de l'agent
+     */
     private void robotWithExploration() {
-        /*try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        MentalState mentalState = new MentalState();
-        //TODO -- Faire comme algo stupid
-        while(true) {
-            mentalState.beliefs = super.vision.snapshotState(); //Observation
-            mentalState.goal = chooseRandomDesire(mentalState.beliefs); //Choix stupid de but
-            if (mentalState.goal != MentalState.Desire.DEFAULT) {
-                try {
-                    mentalState.intentions = explorationLargeur(mentalState);
-                    //mentalState.intentions = explorationDepthFirstSearch(mentalState);
-                    //mentalState.intentions = explorationDepthLimited(mentalState);
-                    //mentalState.intentions = explorationIterativeDeepening(mentalState);
-
-                } catch (ExplorationException e) {
-                    System.out.println("CHANGEMENT DE BUT --------------------------------------- CHANGEMENT DE BUT");
-                    impossibleGoal.add(mentalState.goal);
-                    continue;
-                }
-                impossibleGoal.clear();
-                while (!mentalState.intentions.isEmpty())
-                    super.executeAction(mentalState.intentions.poll());
-            }else{
-                impossibleGoal.clear();
-            }*/
-
-
         // Execute all actions for the first observation
         MentalState mentalState = this.buildMentalState();
         while(!mentalState.intentions.isEmpty())
@@ -72,21 +56,20 @@ public class AgentExploStupide extends Robot {
             // Notify the frequency learning system of the new perf
             exploFrequency.addMeasure(perfCounter.get());
         }
-
-
-
     }
 
+    /**
+     * Construit l'état mental de l'agent
+     * @return l'état mental de l'agent
+     */
     private MentalState buildMentalState() {
         MentalState mentalState = new MentalState();
         mentalState.beliefs = vision.snapshotState();
-        mentalState.goal = chooseRandomDesire(mentalState.beliefs);
+        mentalState.goal = chooseDesire(mentalState.beliefs);
         if(mentalState.goal != MentalState.Desire.DEFAULT){
             try {
                 mentalState.intentions = explorationLargeur(mentalState); //TODO <-Passer ca en paramètre
             } catch (ExplorationException e) {
-                //TODO ne doit plus arriver !
-                System.out.println("CHANGEMENT DE BUT --------------------------------------- CHANGEMENT DE BUT");
                 impossibleGoal.add(mentalState.goal);
                 mentalState.intentions = new LinkedList<>();
             }
@@ -97,13 +80,12 @@ public class AgentExploStupide extends Robot {
         return mentalState;
     }
 
-    private MentalState.Desire chooseRandomDesire(EnvState state){
-        /*Random r = new Random(); //TODO - faudrait l'avoir en permanant non ? ou via thread Random - Max
-        //TODO Faire ca en regardant si y'a au moins 1 pourssière dans l'env
-        if(r.nextInt(100)<70) return MentalState.Desire.DUST;
-        //TODO Faire ca en regardant si y'a au moins 1 Jewel dans l'env
-        return MentalState.Desire.JEWEL;*/
-
+    /**
+     * Choisi un desire en fonction de l'état de l'environnement
+     * @param state
+     * @return
+     */
+    private MentalState.Desire chooseDesire(EnvState state){
         if(SensorVision.isThereJewel(state)){
             if (!impossibleGoal.contains(MentalState.Desire.JEWEL))
                 return MentalState.Desire.JEWEL;
@@ -117,16 +99,16 @@ public class AgentExploStupide extends Robot {
         return MentalState.Desire.DEFAULT; //TODO pour moi c'est Do Nothing -Max
     }
 
-    private LinkedList<Action> uniformCostSearch(MentalState m) {
-        return null;
-    }
-
+    /**
+     * Algorithme d'exploration en largeur
+     * @param m l'état mental de l'agent
+     * @return la liste des actions à effectuer
+     * @throws ExplorationException
+     */
     private LinkedList<Action> explorationLargeur(MentalState m) throws ExplorationException {
-
-
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
-        Noeud origine = new Noeud(null, e,0, 0,initiale, 0); //Position actuelle du robot ?
+        Noeud origine = new Noeud(null, e,0, 0,initiale, 0);
         origine.getEnvironnement().getCase(initiale).removeEnvObject(EnvObject.ROBOT);
         LinkedList<Noeud> fringe = new LinkedList<>();
         fringe.addAll(expand(origine));
@@ -147,7 +129,6 @@ public class AgentExploStupide extends Robot {
         }
         if(trouve){
             LinkedList<Action> todo = new LinkedList<>();
-            System.out.println("Dernier noeud position "+node.getPositionRobot().x + " "+ node.getPositionRobot().y);
             while(node != origine){
                 todo.push(node.getParent().getSuccessor().get(node));
                 node = node.getParent();
@@ -158,12 +139,16 @@ public class AgentExploStupide extends Robot {
             }
             return todo;
         }else{
-            //System.out.println("------------------------\n BEST MOVE TO DO \n -------------------------");
-            //TODO renvoyer action nulle -Max
             throw new ExplorationException();
         }
     }
 
+    /**
+     * Exploration itérative en profondeur
+     * @param m l'état mental de l'agent
+     * @return la liste des actions à éffectuer
+     * @throws ExplorationException
+     */
     private LinkedList<Action> explorationIterativeDeepening(MentalState m) throws ExplorationException {
         EnvState e;
         Position initiale = getAgentPosition(m.beliefs);
@@ -194,6 +179,12 @@ public class AgentExploStupide extends Robot {
         return todo;
     }
 
+    /**
+     * Algorithme de recherche en profondeur
+     * @param m l'etat mental de l'agent
+     * @return la liste des actions à effectuer
+     * @throws ExplorationException
+     */
     private LinkedList<Action> explorationDepthLimited(MentalState m) throws ExplorationException {
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
@@ -220,6 +211,16 @@ public class AgentExploStupide extends Robot {
         }
     }
 
+    /**
+     * Permet de faire la recherche en profondeur limitée récursive
+     * @param node le noeud sur lequel faire le traitement
+     * @param profondeur profondeur max autorisée
+     * @param m l'état mental de l'agent
+     * @return une Pair ayant pour valeur :
+     *             * "noeud", Noeud : si la recherche aboutie
+     *             * "cuttoff", null : si il y a cuttoff
+     *             * "failure", null : si c'est un echec
+     */
     private Pair<String,Noeud> recursiveDLS(Noeud node, int profondeur, MentalState m)  {
         boolean cutOffOccurred = false;
         if(goalTest(m,node)){
@@ -243,6 +244,12 @@ public class AgentExploStupide extends Robot {
         return new Pair<>("failure",null);
     }
 
+    /**
+     * Algorithme de recherche en profondeur
+     * @param m l'état mental de l'agent
+     * @return la listes des actions à faire
+     * @throws ExplorationException
+     */
     private LinkedList<Action> explorationDepthFirstSearch(MentalState m) throws ExplorationException {
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
@@ -278,58 +285,56 @@ public class AgentExploStupide extends Robot {
             }
             return todo;
         }else{
-            //System.out.println("------------------------\n BEST MOVE TO DO \n -------------------------");
-            //TODO renvoyer action nulle -Max
             throw new ExplorationException();
         }
     }
 
 
-
+    /**
+     * Cherche le noeud dans l'arbre ayant la meilleure performance
+     * @param origine la racine de l'arbre
+     * @return le noeud avec la meilleure performance
+     */
     private Noeud bestMoveToDo(Noeud origine) {
         return  origine.meilleurNoeud();
     }
 
+    /**
+     * Permet de savoir si le but de l'agent est accompli
+     * @param m l'état mental de l'agent
+     * @param node le noeud sur lequel effectuer le test
+     * @return si le but est accompli ou non
+     */
     private boolean goalTest(MentalState m, Noeud node) {
-        //System.out.println("Position : x : " + node.getPositionRobot().x+ ", y : "+node.getPositionRobot().y);
-        Case caseCourante = node.getEnvironnement().getCase(node.getPositionRobot());
-
         if(node.getParent() != null) {
-            //if (caseCourante.containsEnvObject(EnvObject.DUST) && m.goal == MentalState.Desire.DUST) {
             if (m.goal == MentalState.Desire.DUST) {
-                //TODO BUG Si jewel + dust sur la meme case
                 try {
                     return node.getParent().getSuccessor().get(node) == Action.VACUUM_DUST;
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
-
-            //if (caseCourante.containsEnvObject(EnvObject.JEWELRY) && m.goal == MentalState.Desire.JEWEL) {
             if(m.goal == MentalState.Desire.JEWEL){
                 return node.getParent().getSuccessor().get(node) == Action.GATHER_JEWELRY;
             }
-        /*if (m.goal == MentalState.Desire.DEFAULT){
-            if(node.getParent().getSuccessor().get(node) == Action.DO_NOTHING) return true;
-            return false;
-        }*/
         }
         return false;
     }
 
+    /**
+     * Fonction permetant d'etrande un noeud avec les nouveaux noeud possibles
+     * @param node le noeud à étendre
+     * @return les nouveaux noeuds à explorer
+     */
     private Collection<? extends Noeud> expand(Noeud node) {
         LinkedList<Noeud> successors = new LinkedList<>();
         Noeud s;
         Position futurePosition = null;
-        /*env = new EnvState(env);
-        env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.DUST);
-        env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.JEWELRY);*/
-        EnvState env;// =node.getEnvironnement();
-        int performance;// = node.getPerformance() -1;
+        EnvState env;
+        int performance;
         for (Action a:possibleActionsByPositionEtMarquage(node.getEnvironnement(),node.getPositionRobot())) { //-------------------TODO
             performance = node.getPerformance() -1;
             env = node.getEnvironnement();
-            //env = new EnvState(node.getEnvironnement());
             env.getCase(node.getPositionRobot()).addEnvObject(EnvObject.ROBOT);
             switch (a) {
                 case VACUUM_DUST:
@@ -371,6 +376,12 @@ public class AgentExploStupide extends Robot {
     }
 
 
+    /**
+     * Cette méthode renvoie toutes les actions possibles qu'un agent peu effectuer dans l'environnement donné
+     * @param belief l'environement de l'agent
+     * @param p la position de l'agent
+     * @return la liste des actions possibles
+     */
     private Set<Action> possibleActionsByPosition(EnvState belief, Position p) {
         Set<Action> actionsList = new HashSet<>();
         int envSize = belief.getEnvSize();
@@ -396,6 +407,12 @@ public class AgentExploStupide extends Robot {
         return actionsList;
     }
 
+    /**
+     * Retourne les actions possibles en fonction d'un environnement marqué par le robot lors de son passage
+     * @param belief une grille représentant l'environnement dans lequel se trouve le robot
+     * @param p la position actuelle du robot dans l'environnement
+     * @return un ensemble d'action possibles
+     */
     private Set<Action> possibleActionsByPositionEtMarquage(EnvState belief, Position p) {
         Set<Action> actionsList = new HashSet<>();
         int envSize = belief.getEnvSize();
