@@ -76,18 +76,16 @@ public class Robot implements Runnable {
     }
 
     private void robotInforme() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+
         MentalState mentalState = new MentalState();
         while(true) {
             mentalState.beliefs = vision.snapshotState(); //Observation
 
             EnvState env = new EnvState(mentalState.beliefs);
             Noeud origine = new Noeud(null, env,0, 0,getAgentPosition(env));
-            mentalState.intentions = BuildTree(mentalState,origine,env);
+
+            Noeud goal = findBestGoal(env,origine);
+            mentalState.intentions = BuildTree(mentalState,origine,env,goal);
 
             while (!mentalState.intentions.isEmpty())
                 executeAction(mentalState.intentions.poll());
@@ -97,9 +95,9 @@ public class Robot implements Runnable {
 
     }
 
-    public LinkedList<Action> BuildTree(MentalState m, Noeud origine, EnvState e1)
+    public LinkedList<Action> BuildTree(MentalState m, Noeud origine, EnvState e1,Noeud goal)
     {
-        Noeud goal = findBestGoal(e1,origine);
+        //Noeud goal = findBestGoal(e1,origine);
         LinkedList<Action> out = new LinkedList<Action>();
         EnvState e = new EnvState(e1);
         Noeud node = origine;
