@@ -5,6 +5,8 @@ import pourCommencer.Agent.Exploration.Noeud;
 import pourCommencer.Environment.*;
 import pourCommencer.Excepetion.*;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
 import static pourCommencer.Agent.SensorVision.isCaseDirtyAt;
@@ -22,15 +24,19 @@ public class AgentExploMonoObject extends Robot {
 
 
     protected static final int PROFONDEUR_MAX = 20;
+    private Method algoExploration;
 
     /**
      * Permet de modéliser les buts où l'exploration a échouée
      */
     private ArrayList<MentalState.Desire> impossibleGoal= new ArrayList<>();
 
-    public AgentExploMonoObject(Environment env) {
+    public AgentExploMonoObject(Environment env, Method algoExploration) {
         super(env);
+        this.algoExploration = algoExploration;
     }
+
+
 
     @Override
     public void run() {
@@ -68,10 +74,18 @@ public class AgentExploMonoObject extends Robot {
         mentalState.goal = chooseDesire(mentalState.beliefs);
         if(mentalState.goal != MentalState.Desire.DEFAULT){
             try {
-                mentalState.intentions = explorationLargeur(mentalState); //TODO <-Passer ca en paramètre
-            } catch (ExplorationException e) {
+                Object[] parametres = new Object[1];
+                parametres[0] = mentalState;
+                mentalState.intentions = (LinkedList<Action>) algoExploration.invoke(this, parametres);//explorationLargeur(mentalState); //TODO <-Passer ca en paramètre
+            } /*catch (ExplorationException e) {
                 impossibleGoal.add(mentalState.goal);
                 mentalState.intentions = new LinkedList<>();
+            }*/ catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                //impossibleGoal.add(mentalState.goal);
+                //mentalState.intentions = new LinkedList<>();
+                e.printStackTrace();
             }
         }else{
             mentalState.intentions = new LinkedList<>();
@@ -105,7 +119,7 @@ public class AgentExploMonoObject extends Robot {
      * @return la liste des actions à effectuer
      * @throws ExplorationException
      */
-    private LinkedList<Action> explorationLargeur(MentalState m) throws ExplorationException {
+    public LinkedList<Action> explorationLargeur(MentalState m) throws ExplorationException {
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
         Noeud origine = new Noeud(null, e,0, 0,initiale, 0);
@@ -149,7 +163,7 @@ public class AgentExploMonoObject extends Robot {
      * @return la liste des actions à éffectuer
      * @throws ExplorationException
      */
-    private LinkedList<Action> explorationIterativeDeepening(MentalState m) throws ExplorationException {
+    public LinkedList<Action> explorationIterativeDeepening(MentalState m) throws ExplorationException {
         EnvState e;
         Position initiale = getAgentPosition(m.beliefs);
         Pair resultat = null;
@@ -185,7 +199,7 @@ public class AgentExploMonoObject extends Robot {
      * @return la liste des actions à effectuer
      * @throws ExplorationException
      */
-    private LinkedList<Action> explorationDepthLimited(MentalState m) throws ExplorationException {
+    public LinkedList<Action> explorationDepthLimited(MentalState m) throws ExplorationException {
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
         Noeud origine = new Noeud(null, e,0, 0,initiale, 0); //Position actuelle du robot ?
@@ -250,7 +264,7 @@ public class AgentExploMonoObject extends Robot {
      * @return la listes des actions à faire
      * @throws ExplorationException
      */
-    private LinkedList<Action> explorationDepthFirstSearch(MentalState m) throws ExplorationException {
+    public LinkedList<Action> explorationDepthFirstSearch(MentalState m) throws ExplorationException {
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
         Noeud origine = new Noeud(null, e,0, 0,initiale, 0); //Position actuelle du robot ?

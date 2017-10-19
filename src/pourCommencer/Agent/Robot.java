@@ -5,14 +5,6 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
 
-//TODO
-class MentalState {
-    EnvState beliefs;
-    enum Desire { DEFAULT, DUST, JEWEL}
-    Desire goal;
-    LinkedList<Action> intentions;
-}
-
 /**
  * Classe facade implementant le minimum pour que l'agent vive
  * Pour des algorithmes plus avancer, se repporter aux classes filles

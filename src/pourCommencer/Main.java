@@ -2,9 +2,12 @@ package pourCommencer;
 
 import pourCommencer.Agent.AgentExploMonoObject;
 import pourCommencer.Agent.AgentExploPathWithMultiObject;
+import pourCommencer.Agent.MentalState;
 import pourCommencer.Agent.Robot;
 import pourCommencer.Environment.*;
 import pourCommencer.Vue.VueTexte;
+
+import java.lang.reflect.Method;
 
 public class Main {
     public static void main(String[] args) {
@@ -21,7 +24,16 @@ public class Main {
         EnvSimulator envSimulator = new EnvSimulator(env);
         env.placeJewelAt(new Position(9,9));
         env.placeDustAt(new Position(3,3));
-        Robot robot = new AgentExploMonoObject(env);
+
+        Class[] parameterTypes = new Class[1];
+        parameterTypes[0] = MentalState.class;
+        Robot robot = null;
+        try {
+            Method m = AgentExploMonoObject.class.getMethod("explorationLargeur",parameterTypes);
+            robot = new AgentExploMonoObject(env,m);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
         // The console GUI
         VueTexte vueTexte = new VueTexte(env, robot);
 
