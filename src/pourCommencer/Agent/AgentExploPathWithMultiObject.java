@@ -8,7 +8,6 @@ import pourCommencer.Excepetion.*;
 import java.util.*;
 import java.util.concurrent.Callable;
 
-import static pourCommencer.Agent.Robot.PROFONDEUR_MAX;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
 import static pourCommencer.Agent.SensorVision.isCaseDirtyAt;
 import static pourCommencer.Agent.SensorVision.isCaseJewelAt;
@@ -16,6 +15,8 @@ import static pourCommencer.Agent.SensorVision.isCaseJewelAt;
 public class AgentExploPathWithMultiObject extends Robot {
 
     private ArrayList<MentalState.Desire> impossibleGoal= new ArrayList<>();
+
+    private static final int PROFONDEUR_MAX = 10;
 
     public AgentExploPathWithMultiObject(Environment env) {
         super(env);

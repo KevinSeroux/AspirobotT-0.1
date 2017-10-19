@@ -19,7 +19,6 @@ public class Robot implements Runnable {
     // Count of times the agent has asked himself if he should observe
     private int observationCounter;
 
-    protected static final int PROFONDEUR_MAX = 10;
     protected  _PerformanceCounter perfCounter;
     protected ExplorationFrequency exploFrequency;
     protected EffecteurArm bras;
