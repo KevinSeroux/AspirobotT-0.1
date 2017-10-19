@@ -56,17 +56,32 @@ public class Menu {
         try {
         while (true){
             System.out.println(menu);
-            choix = sc.nextInt();
+            try {
+                choix = sc.nextInt();
+            }catch (Exception e) {
+                sc = new Scanner(System.in);
+                continue;
+            }
             switch (choix){
                 case 1:
                     while (true) {
                         System.out.println(menuNonInformeeType);
-                        choix = sc.nextInt();
+                        try {
+                            choix = sc.nextInt();
+                        }catch (Exception e) {
+                            sc = new Scanner(System.in);
+                            continue;
+                        }
                         switch (choix) {
                             case 1 :
                                 while (true) {
                                     System.out.println(menuNonInformeeOneObject);
-                                    choix = sc.nextInt();
+                                    try {
+                                        choix = sc.nextInt();
+                                    }catch (Exception e) {
+                                        sc = new Scanner(System.in);
+                                        continue;
+                                    }
                                     switch (choix) {
                                         case 1:
                                             m = AgentExploMonoObject.class.getMethod("explorationLargeur", parameterTypes);
@@ -108,8 +123,6 @@ public class Menu {
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
-
-
 
 
         // The console GUI

@@ -84,8 +84,8 @@ public class AgentExploMonoObject extends Robot {
                 e.printStackTrace();
             } catch (InvocationTargetException e) {
                 //impossibleGoal.add(mentalState.goal);
-                //mentalState.intentions = new LinkedList<>();
-                e.printStackTrace();
+                mentalState.intentions = new LinkedList<>();
+                //e.printStackTrace();
             }
         }else{
             mentalState.intentions = new LinkedList<>();
