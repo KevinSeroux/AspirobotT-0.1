@@ -9,11 +9,7 @@ public class EffecteurAspiration {
         this.env = env;
     }
 
-    //TODO ajouter mesure de performance ?
     public void aspirer() {
-        /* Ici on gère pas explicitement le cas où l'agent aspire
-         * un bijou, c'est une conséquence de sa volonté d'aspirer
-         * de la poussière */
         env.agentDoVaccumDust();
     }
 }

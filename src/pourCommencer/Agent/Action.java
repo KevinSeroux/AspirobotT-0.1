@@ -2,8 +2,8 @@ package pourCommencer.Agent;
 
 // Actions spécifiques a l'agent
 public enum Action {
-    VACUUM_DUST, // Aspire la saleté
-    GATHER_JEWELRY, // Récolte les bijoux
+    VACUUM_DUST,
+    GATHER_JEWELRY,
     MOVE_UP,
     MOVE_DOWN,
     MOVE_LEFT,

@@ -2,8 +2,6 @@ package pourCommencer.Agent;
 
 import pourCommencer.Agent.Exploration.Noeud;
 import pourCommencer.Environment.*;
-import pourCommencer.Excepetion.ExpandActionTypeException;
-import pourCommencer.Excepetion.explorationLargeurNotFoundException;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -14,14 +12,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import static java.lang.Math.abs;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
 
-//TODO
-class MentalState {
-    EnvState beliefs;
-    enum Desire { DEFAULT, DUST, JEWEL}
-    Desire goal;
-    LinkedList<Action> intentions;
-}
-
+/**
+ * Classe facade implementant le minimum pour que l'agent vive
+ * Pour des algorithmes plus avancer, se repporter aux classes filles
+ */
 public class Robot implements Runnable {
     private _PerformanceCounter perfCounter;
     private ExplorationFrequency exploFrequency;
@@ -29,24 +23,15 @@ public class Robot implements Runnable {
     private EffecteurAspiration aspiration;
     private EffecteurMouvement mouvement;
     private SensorVision vision;
+    // Count of times the agent has asked himself if he should observe
     private int observationCounter;
-
-    public int getMovementCounter() {
-        return movementCounter;
-    }
-
-    public void setMovementCounter(int movementCounter) {
-        this.movementCounter = movementCounter;
-    }
-
-    private int movementCounter = 0;
 
     public Robot(Environment env) {
         /* L'agent n'est supposé interagir avec l'environement
          * que par ses capteurs et ses effecteurs */
 
         this.perfCounter = env.getPerfCounter();
-        this.exploFrequency = new ExplorationFrequency(0.1);
+        this.exploFrequency = new ExplorationFrequency(0.5);
         this.bras = new EffecteurArm(env);
         this.aspiration = new EffecteurAspiration(env);
         this.mouvement = new EffecteurMouvement(env);
@@ -66,50 +51,26 @@ public class Robot implements Runnable {
         robotInforme();
     }
 
+    /**
+     * Agent stupide qui se déplace sans but de manière aléatoire
+     * et qui ramasse ce qui est sur son chemin
+     */
     private void stupidRobot() {
         // Execute all actions for the first observation
         MentalState mentalState = buildMentalState();
         while(!mentalState.intentions.isEmpty())
             executeAction(mentalState.intentions.poll());
 
+        // Then, place some observations between actions
         while (true) {
             if(doObserve())
                 mentalState = buildMentalState();
 
             executeAction(mentalState.intentions.poll());
 
-            // Notifie le système d'apprentissage de la performance de l'action
+            // Notify the frequency learning system of the new perf
             exploFrequency.addMeasure(perfCounter.get());
         }
-    }
-
-    private void robotWithExploration() {
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        MentalState mentalState = new MentalState();
-        while(true) {
-            mentalState.beliefs = vision.snapshotState(); //Observation
-            mentalState.goal = chooseRandomDesire(mentalState.beliefs); //Choix stupid de but
-            if (mentalState.goal != MentalState.Desire.DEFAULT) {
-                try {
-                    mentalState.intentions = explorationLargeur(mentalState);
-                } catch (explorationLargeurNotFoundException e) {
-                    e.printStackTrace();
-                    continue;
-                } catch (ExpandActionTypeException e) {
-                    e.printStackTrace();
-                    continue;
-                }
-                //TODO
-                while (!mentalState.intentions.isEmpty())
-                    executeAction(mentalState.intentions.poll());
-            }
-        }
-
-
     }
 
     private void robotInforme() {
@@ -121,17 +82,19 @@ public class Robot implements Runnable {
         MentalState mentalState = new MentalState();
         while(true) {
             mentalState.beliefs = vision.snapshotState(); //Observation
-            mentalState.goal = chooseRandomDesire(mentalState.beliefs); //Choix stupid de but
-            if (mentalState.goal != MentalState.Desire.DEFAULT) {
+//            mentalState.goal = chooseRandomDesire(mentalState.beliefs); //Choix stupid de but
+//            if (mentalState.goal != MentalState.Desire.DEFAULT) {
+//            if(doObserve())
+//                mentalState = buildMentalState();
+//
+            EnvState env = new EnvState(mentalState.beliefs);
+            Noeud origine = new Noeud(null, env,0, 0,getAgentPosition(env));
+            mentalState.intentions = BuildTree(mentalState,origine,env);
 
-                    EnvState env = new EnvState(mentalState.beliefs);
-                    Noeud origine = new Noeud(null, env,0, 0,getAgentPosition(env));
-                    mentalState.intentions = BuildTree(mentalState,origine,env);
+//            }
 
-            }
-
-                while (!mentalState.intentions.isEmpty())
-                    executeAction(mentalState.intentions.poll());
+            while (!mentalState.intentions.isEmpty())
+                executeAction(mentalState.intentions.poll());
 
         }
 
@@ -297,174 +260,47 @@ public class Robot implements Runnable {
 
 
         return out;
-        }
+    }
 
     private Noeud findBestGoal(EnvState e, Noeud start) {
-       int closestdist = 100;
-       Position newPosition;
-       Noeud goal = null;
+        int closestdist = 100;
+        Position newPosition;
+        Noeud goal = null;
         int pathcost;
         EnvState enew;
         int profondeur;
-       for (int i =0;i<10;i++)
-       {
-           for (int j =0;j<10;j++)
-           {
+        for (int i =0;i<10;i++)
+        {
+            for (int j =0;j<10;j++)
+            {
 
-               if( vision.doesCaseHaveJewelery(e,new Position(j,i)) && (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y)) < closestdist )
-               {
-                   closestdist = (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y));
-                   profondeur = closestdist+1;
-                   pathcost = closestdist;
-                   enew = new EnvState(e);
-                   enew.getCase(start.getPositionRobot()).removeEnvObject(EnvObject.ROBOT);
-                   enew.getCase(new Position(i,j)).addEnvObject(EnvObject.ROBOT);
-                   goal = new Noeud(start,enew,pathcost,profondeur,new Position(i,j));
-               }
-               else
-                   if( vision.isCaseDirtyAt(e,new Position(j,i)) && (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y)) < closestdist )
-                   {
-                       closestdist = (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y));
-                       profondeur = closestdist+1;
-                       pathcost = closestdist;
-                       enew = new EnvState(e);
-                       enew.getCase(start.getPositionRobot()).removeEnvObject(EnvObject.ROBOT);
-                       enew.getCase(new Position(i,j)).addEnvObject(EnvObject.ROBOT);
-                       goal = new Noeud(start,enew,pathcost,profondeur,new Position(i,j));
-                   }
-                   else continue;
-           }
-       }
-       return goal;
-    }
-
-    private LinkedList<Action> explorationLargeur(MentalState m) throws explorationLargeurNotFoundException, ExpandActionTypeException {
-        EnvState e = new EnvState(m.beliefs);
-        Position initiale = getAgentPosition(e);
-        Noeud origine = new Noeud(null, e,0, 0,initiale); //Position actuelle du robot ?
-        origine.getEnvironnement().getCase(initiale).removeEnvObject(EnvObject.ROBOT);
-        LinkedList<Noeud> fringe = new LinkedList<Noeud>();
-        fringe.add(origine);
-        Noeud node = null;
-        boolean trouve = false;
-        while (true){
-            if(fringe.size() == 0){
-                trouve = false;
-                break; //retunr failure
+                if( vision.doesCaseHaveJewelery(e,new Position(j,i)) && (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y)) < closestdist )
+                {
+                    closestdist = (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y));
+                    profondeur = closestdist+1;
+                    pathcost = closestdist;
+                    enew = new EnvState(e);
+                    enew.getCase(start.getPositionRobot()).removeEnvObject(EnvObject.ROBOT);
+                    enew.getCase(new Position(i,j)).addEnvObject(EnvObject.ROBOT);
+                    goal = new Noeud(start,enew,pathcost,profondeur,new Position(i,j));
+                }
+                else
+                if( vision.isCaseDirtyAt(e,new Position(j,i)) && (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y)) < closestdist )
+                {
+                    closestdist = (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y));
+                    profondeur = closestdist+1;
+                    pathcost = closestdist;
+                    enew = new EnvState(e);
+                    enew.getCase(start.getPositionRobot()).removeEnvObject(EnvObject.ROBOT);
+                    enew.getCase(new Position(i,j)).addEnvObject(EnvObject.ROBOT);
+                    goal = new Noeud(start,enew,pathcost,profondeur,new Position(i,j));
+                }
+                else continue;
             }
-            node = fringe.removeFirst();
-            if(goalTest(m, node)){
-                trouve = true;
-                break; //return node
-            }
-            fringe.addAll(expand(node));
         }
-        if(trouve){
-            LinkedList<Action> todo = new LinkedList<>();
-            System.out.println("Dernier noeud position "+node.getPositionRobot().x + " "+ node.getPositionRobot().y);
-            while(node != origine){
-                todo.push(node.getParent().getSuccessor().get(node));
-                node = node.getParent();
-            }
-            for (Action a:todo
-                 ) {
-                System.out.println("Action : "+a);
-            }
-            return todo;
-        }else{
-            throw new explorationLargeurNotFoundException();
-        }
+        return goal;
     }
 
-    private boolean goalTest(MentalState m, Noeud node) {
-        //System.out.println("Position : x : " + node.getPositionRobot().x+ ", y : "+node.getPositionRobot().y);
-        Case caseCourante = node.getEnvironnement().getCase(node.getPositionRobot());
-        if(caseCourante.containsEnvObject(EnvObject.DUST) && m.goal == MentalState.Desire.DUST) return true;
-        if(caseCourante.containsEnvObject(EnvObject.JEWELRY) && m.goal == MentalState.Desire.JEWEL) return true;
-        return false;
-    }
-
-    private Collection<? extends Noeud> expand(Noeud node) throws ExpandActionTypeException {
-        LinkedList<Noeud> successors = new LinkedList<>();
-        Noeud s;
-        Position futurePosition = null;
-        for (Action a:possibleActionsByPosition(node.getEnvironnement(),node.getPositionRobot())) {
-            switch (a) {
-                case VACUUM_DUST:
-                case GATHER_JEWELRY:
-                    futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y); //TODO faire une methode gauche droite & co ca pourrait être sympa :D -Max
-                    break;
-                case MOVE_UP:
-                    futurePosition = new Position(node.getPositionRobot().x-1,node.getPositionRobot().y);
-                    break;
-                case MOVE_DOWN:
-                    futurePosition = new Position(node.getPositionRobot().x+1,node.getPositionRobot().y);
-                    break;
-                case MOVE_LEFT:
-                    futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y-1);
-                    break;
-                case MOVE_RIGHT:
-                    futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y+1);
-                    break;
-                default:
-                    throw new ExpandActionTypeException();
-            }
-            s = new Noeud(node,node.getEnvironnement(),node.getPathCost() + 1,node.getProfondeur()+1, futurePosition); //TODO remplacer 1 par Action.getCoutAction()
-            node.addSuccessor(s,a);
-            successors.add(s);
-        }
-        return successors;
-    }
-
-
-    private Set<Action> possibleActionsByPosition(EnvState belief, Position p) {
-        Set<Action> actionsList = new HashSet<>();
-        int envSize = belief.getEnvSize();
-
-        if(p.x >= 1)
-            actionsList.add(Action.MOVE_UP);
-
-        if(p.x < envSize - 1)
-            actionsList.add(Action.MOVE_DOWN);
-
-        if(p.y >= 1)
-            actionsList.add(Action.MOVE_LEFT);
-
-        if(p.y < envSize - 1)
-            actionsList.add(Action.MOVE_RIGHT);
-
-        if(SensorVision.isCaseDirtyAt(belief, p))
-            actionsList.add(Action.VACUUM_DUST);
-
-        if(SensorVision.doesCaseHaveJewelery(belief, p))
-            actionsList.add(Action.GATHER_JEWELRY);
-
-        return actionsList;
-    }
-
-    private MentalState.Desire chooseRandomDesire(EnvState state){
-        /*Random r = new Random(); //TODO - faudrait l'avoir en permanant non ? ou via thread Random - Max
-        //TODO Faire ca en regardant si y'a au moins 1 pourssière dans l'env
-        if(r.nextInt(100)<70) return MentalState.Desire.DUST;
-        //TODO Faire ca en regardant si y'a au moins 1 Jewel dans l'env
-        return MentalState.Desire.JEWEL;*/
-
-        if(SensorVision.isThereJewel(state)){
-            return MentalState.Desire.JEWEL;
-        }
-
-        if (SensorVision.isThereDust(state)){
-            return MentalState.Desire.DUST;
-        }
-
-        return MentalState.Desire.DEFAULT; //TODO pour moi c'est Do Nothing -Max
-    }
-
-    private MentalState.Desire chooseBestDesire(EnvState state)
-    {
-
-        return MentalState.Desire.DEFAULT;
-    }
     private MentalState buildMentalState() {
         MentalState mentalState = new MentalState();
         mentalState.beliefs = vision.snapshotState();
@@ -475,6 +311,9 @@ public class Robot implements Runnable {
         return mentalState;
     }
 
+    /* If the observation frequency is 0.5 so the agent
+     * execute 2 actions for each observation
+     */
     private boolean doObserve() {
         boolean doObserve;
         observationCounter++;
@@ -493,15 +332,12 @@ public class Robot implements Runnable {
         return doObserve;
     }
 
-    //TODO
     private MentalState.Desire chooseGoal(EnvState belief) {
         return MentalState.Desire.DEFAULT;
     }
 
-    //TODO C'est faux ici (inversion x et y)
-    //DONE Changé par Max pour x et y
-    /* L'agent s'interroge ici sur les actions qu'il peut faire.
-     * Il trie les actions n'apportant pas d'intérêt */
+    /* The agent asks himself what are the actions he can do.
+     * Pointless and impossible actions are sort out */
     private Set<Action> possibleActions(EnvState belief) {
         Set<Action> actionsList = new HashSet<>();
         int envSize = belief.getEnvSize();
@@ -534,60 +370,54 @@ public class Robot implements Runnable {
     ) {
         LinkedList<Action> intentions = new LinkedList<>();
 
-        //For the test choose several intentions
-        int countActions2Generate = ThreadLocalRandom.current().nextInt(10);
-        for(int i = 0; i < countActions2Generate; i++) {
-            // Ramasse les bijoux avant d'aspirer
-            if (actionsPossible.contains(Action.GATHER_JEWELRY))
-                intentions.push(Action.GATHER_JEWELRY);
+        // Ramasse les bijoux avant d'aspirer
+        if (actionsPossible.contains(Action.GATHER_JEWELRY))
+            intentions.push(Action.GATHER_JEWELRY);
 
-            else if (actionsPossible.contains(Action.VACUUM_DUST))
-                intentions.push(Action.VACUUM_DUST);
+        else if (actionsPossible.contains(Action.VACUUM_DUST))
+            intentions.push(Action.VACUUM_DUST);
 
-            else {
-                // A random move
-                ThreadLocalRandom random = ThreadLocalRandom.current();
-                int countPossibleActions = actionsPossible.size();
-                int actionNumber = random.nextInt(countPossibleActions);
+        else {
+            // A random move
+            ThreadLocalRandom random = ThreadLocalRandom.current();
+            int countPossibleActions = actionsPossible.size();
+            int actionNumber = random.nextInt(countPossibleActions);
 
-                intentions.push((Action) (actionsPossible.toArray())[actionNumber]);
-            }
+            intentions.push((Action) (actionsPossible.toArray())[actionNumber]);
         }
 
         return intentions;
     }
 
-    private void executeAction(Action action) {
+
+    /* The agent try to perform the given action.
+     * The action can fails since the environment has rules.
+     * ex: He can hit a wall */
+    protected void executeAction(Action action) {
         if(action != null) {
             switch (action) {
                 case VACUUM_DUST:
                     aspiration.aspirer();
-                    movementCounter++;
                     break;
 
                 case GATHER_JEWELRY:
                     bras.ramasser();
-                    movementCounter++;
                     break;
 
                 case MOVE_UP:
                     mouvement.moveUp();
-                    movementCounter++;
                     break;
 
                 case MOVE_DOWN:
                     mouvement.moveDown();
-                    movementCounter++;
                     break;
 
                 case MOVE_LEFT:
                     mouvement.moveLeft();
-                    movementCounter++;
                     break;
 
                 case MOVE_RIGHT:
                     mouvement.moveRight();
-                    movementCounter++;
                     break;
 
                 default: // No action
@@ -595,7 +425,7 @@ public class Robot implements Runnable {
             }
         }
 
-        // Simule le temps pour faire une action
+        // Simulate the time to do one action
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {

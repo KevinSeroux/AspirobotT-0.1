@@ -2,7 +2,6 @@ package pourCommencer.Environment;
 
 import pourCommencer.Event;
 
-//TODO: Notifications
 public class Manor extends Environment {
 
     private EnvState state;
@@ -57,7 +56,7 @@ public class Manor extends Environment {
 
         // If there was no dust it is an useless action;
         if(!getAgentCase().removeEnvObject(EnvObject.DUST))
-            event = Event.USELESS_ACTION;
+            event = Event.VOID_VACCUMED;
 
         setChanged();
         notifyObservers(event);
@@ -67,8 +66,9 @@ public class Manor extends Environment {
     public void agentDoGatherJewel() {
         Event event = Event.JEWELRY_GATHERED;
 
+        // If there was no jewelry it is an useless action;
         if(!getAgentCase().removeEnvObject(EnvObject.JEWELRY))
-            event = Event.USELESS_ACTION;
+            event = Event.VOID_GATHERED;
 
         setChanged();
         notifyObservers(event);
@@ -139,7 +139,7 @@ public class Manor extends Environment {
     }
 
     private Case getAgentCase() {
-        return getStateSnapshot().getCase(agentPosition);
+        return state.getCase(agentPosition);
     }
 
     private void updateAgentPosition(Position newPos) {
@@ -148,26 +148,5 @@ public class Manor extends Environment {
 
         this.agentPosition = newPos;
         state.getCase(newPos).addEnvObject(EnvObject.ROBOT);
-    }
-
-    @Override
-    public String toString() {
-        int size = getSize();
-        String representation = "";
-        for (int i = 0; i < size; i++) {
-            representation += "-----";
-        }
-        representation += "\n";
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                representation += state.getCase(new Position(i, j)) + "|";
-            }
-            representation += "\n";
-            for (int j = 0; j < size; j++) {
-                representation += "-----";
-            }
-            representation += "\n";
-        }
-        return representation;
     }
 }

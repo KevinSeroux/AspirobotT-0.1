@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+
 public class Case {
 
     private Set<EnvObject> object;
@@ -38,13 +39,15 @@ public class Case {
 
     @Override
     public String toString() {
-        String representation = "";
+        StringBuilder representation = new StringBuilder();
+
         for (EnvObject e: object) {
-            representation += e.getDescription();
+            representation.append(e.getDescription());
         }
         while (representation.length() < 4){
-            representation += " ";
+            representation.append(' ');
         }
-        return representation;
+
+        return representation.toString();
     }
 }

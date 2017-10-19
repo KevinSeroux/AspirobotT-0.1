@@ -10,15 +10,20 @@ import java.util.Observer;
 import java.util.concurrent.Semaphore;
 
 public class VueTexte implements _Vue, Runnable, Observer {
+    /* The semaphore is inspired from Producer-Consumer pattern
+     * except that the producer does not sleep. The consumer is
+     * this class */
 
     private Semaphore semaphore;
     private Environment env;
     private Robot robot;
+    private Event event;
 
     public VueTexte(Environment env, Robot robot) {
         this.env = env;
         this.robot = robot;
         this.semaphore = new Semaphore(1);
+        this.event = Event.STARTUP;
     }
 
     @Override
@@ -27,11 +32,12 @@ public class VueTexte implements _Vue, Runnable, Observer {
             try {
                 semaphore.acquire();
 
+                System.out.println("New event: " + event.toString());
                 double perf = env.getPerfCounter().get();
                 double exploFreq = robot.getExplorationFrequency().get();
                 boolean agentIsTraining = robot.getExplorationFrequency().isTraining();
 
-                System.out.println(this);
+                System.out.println(env.getStateSnapshot());
                 System.out.println("Performance: " + perf);
 
                 if(agentIsTraining)
@@ -45,34 +51,9 @@ public class VueTexte implements _Vue, Runnable, Observer {
         }
     }
 
-    @Override
-    public String toString() {
-        int size = env.getSize();
-
-        String representation = "";
-        for (int i = 0; i < size; i++) {
-            representation += "-----";
-        }
-        representation += "\n";
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                Position pos = new Position(i, j);
-                representation += env.getStateSnapshot().getCase(pos) + "|";
-            }
-            representation += "\n";
-            for (int j = 0; j < size; j++) {
-                representation += "-----";
-            }
-            representation += "\n";
-        }
-        return representation;
-    }
-
     // Débloque le sémaphore pour que run() poursuit
     public void update(Observable o, Object arg) {
-        Event event = (Event)arg;
-        System.out.println("New event: " + event.toString());
-
+        event = (Event)arg;
         semaphore.release();
     }
 }

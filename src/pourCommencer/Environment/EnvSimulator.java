@@ -2,13 +2,13 @@ package pourCommencer.Environment;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+// This class places random dust and jewel in the environment
 public class EnvSimulator implements Runnable {
     private final static double probabilityGenerateDust = 0.9;
     // The probability to generate jewel is: 1 - above
 
     private final static int maxGenerationTimeMs = 5000;
 
-    //TODO Je pense qu'il faut deux random pour être uniforme ? -Max
     private ThreadLocalRandom random;
     private _Environment env;
 

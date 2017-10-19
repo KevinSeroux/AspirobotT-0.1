@@ -14,15 +14,14 @@ public class SensorVision {
 
     // Retourne une snapshot de l'env
     public EnvState snapshotState() {
-        return new EnvState(env.getStateSnapshot());
-    }
-
-    public int getEnvSize() {
-        return env.getSize();
+        return env.getStateSnapshot();
     }
 
     static public boolean isCaseDirtyAt(EnvState state, Position pos) {
         return state.getCase(pos).containsEnvObject(EnvObject.DUST);
+    }
+    static public boolean isCaseJewelAt(EnvState state, Position pos) {
+        return state.getCase(pos).containsEnvObject(EnvObject.JEWELRY);
     }
 
     static public boolean doesCaseHaveJewelery(EnvState state, Position pos) {
@@ -32,6 +31,8 @@ public class SensorVision {
     static public Position getAgentPosition(EnvState state) {
         int size = state.getEnvSize();
 
+        // Search for each case if the robot is here
+        // TODO: Improve this
         for(int i = 0; i < size; i++)
             for(int j = 0; j < size; j++) {
                 Position pos = new Position(i, j);
@@ -42,7 +43,7 @@ public class SensorVision {
         return null;
     }
 
-    static public boolean isThereDust(EnvState state){
+    static public boolean isThereDust(EnvState state) {
         int size = state.getEnvSize();
 
         for(int i = 0; i < size; i++)
@@ -55,7 +56,7 @@ public class SensorVision {
         return false;
 
     }
-    static public boolean isThereJewel(EnvState state){
+    static public boolean isThereJewel(EnvState state) {
         int size = state.getEnvSize();
 
         for(int i = 0; i < size; i++)
