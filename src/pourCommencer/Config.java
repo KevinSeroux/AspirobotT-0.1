@@ -12,4 +12,12 @@ public class Config {
 	// Learning
 	public static final int learnMeasuresCount = 5; // Default: 5
 	public static final int learnFailuresCount = 3; // Default: 3
+
+
+	//Recherche non informée
+    public final static int COUT_ACTION = 1;
+    public final static int GAIN_DUST = 10;
+    public final static int GAIN_JEWEL = 20;
+    public final static int PERTE_ASPI_JEWEL = 40;
+
 }

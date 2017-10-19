@@ -2,6 +2,7 @@ package pourCommencer.Agent;
 
 import javafx.util.Pair;
 import pourCommencer.Agent.Exploration.Noeud;
+import pourCommencer.Config;
 import pourCommencer.Environment.*;
 import pourCommencer.Excepetion.*;
 
@@ -347,24 +348,24 @@ public class AgentExploMonoObject extends Robot {
         EnvState env;
         int performance;
         for (Action a:possibleActionsByPositionEtMarquage(node.getEnvironnement(),node.getPositionRobot())) { //-------------------TODO
-            performance = node.getPerformance() -1;
+            performance = node.getPerformance() - Config.COUT_ACTION;
             env = node.getEnvironnement();
             env.getCase(node.getPositionRobot()).addEnvObject(EnvObject.ROBOT);
             switch (a) {
                 case VACUUM_DUST:
                     if(isCaseDirtyAt(node.getEnvironnement(),node.getPositionRobot())){
                         //performance+=Action.VACUUM_DUST.getPerf() - Action.VACUUM_DUST.getCoutAction(); //TODO
-                        performance+=10;
+                        performance+= Config.GAIN_DUST;
                         env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.DUST);
                         if (isCaseJewelAt(node.getEnvironnement(),node.getPositionRobot())) {
-                            performance -= 40;
+                            performance -= Config.PERTE_ASPI_JEWEL;
                             env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.JEWELRY);
                         }
                     }
                 case GATHER_JEWELRY:
                     if(a == Action.GATHER_JEWELRY && isCaseJewelAt(node.getEnvironnement(),node.getPositionRobot())){
                         //performance+=Action.VACUUM_DUST.getPerf() - Action.VACUUM_DUST.getCoutAction(); //TODO
-                        performance+=20;
+                        performance+=Config.GAIN_JEWEL;
                         env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.JEWELRY);
                     }
                     futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y); //TODO faire une methode gauche droite & co ca pourrait être sympa :D -Max
@@ -382,7 +383,7 @@ public class AgentExploMonoObject extends Robot {
                     futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y+1);
                     break;
             }
-            s = new Noeud(node,env,node.getPathCost() + 1,node.getProfondeur()+1, futurePosition, performance); //TODO remplacer 1 par Action.getCoutAction()
+            s = new Noeud(node,env,node.getPathCost() + 1,node.getProfondeur()+1, futurePosition, performance);
             node.addSuccessor(s,a);
             successors.add(s);
         }
