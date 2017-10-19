@@ -65,6 +65,7 @@ public class AgentExploPathWithMultiObject extends Robot {
             } catch (ExplorationException e) {
                 //TODO ne doit plus arriver !
                 mentalState.intentions = new LinkedList<>();
+                //mentalState.intentions.add(Action.DO_NOTHING); //TODO il faudrait ce type d'actions - Max
             }
         return mentalState;
     }
