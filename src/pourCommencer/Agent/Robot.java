@@ -3,7 +3,6 @@ package pourCommencer.Agent;
 import pourCommencer.Agent.Exploration.Noeud;
 import pourCommencer.Environment.*;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -17,12 +16,12 @@ import static pourCommencer.Agent.SensorVision.getAgentPosition;
  * Pour des algorithmes plus avancer, se repporter aux classes filles
  */
 public class Robot implements Runnable {
-    private _PerformanceCounter perfCounter;
-    private ExplorationFrequency exploFrequency;
+    protected _PerformanceCounter perfCounter;
+    protected ExplorationFrequency exploFrequency;
     private EffecteurArm bras;
     private EffecteurAspiration aspiration;
     private EffecteurMouvement mouvement;
-    private SensorVision vision;
+    protected SensorVision vision;
     // Count of times the agent has asked himself if he should observe
     private int observationCounter;
 
@@ -314,7 +313,7 @@ public class Robot implements Runnable {
     /* If the observation frequency is 0.5 so the agent
      * execute 2 actions for each observation
      */
-    private boolean doObserve() {
+    protected boolean doObserve() {
         boolean doObserve;
         observationCounter++;
 
