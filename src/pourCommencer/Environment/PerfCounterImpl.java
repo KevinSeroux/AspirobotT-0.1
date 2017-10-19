@@ -5,8 +5,6 @@ import pourCommencer.Event;
 
 import java.util.Observable;
 
-import static pourCommencer.Agent.Action.VACUUM_DUST;
-
 public class PerfCounterImpl extends PerformanceCounter {
 	private final static double alpha = 3;
 	private final static double beta = 5;
@@ -35,6 +33,69 @@ public class PerfCounterImpl extends PerformanceCounter {
 						((alpha*taillePlateau + beta * (taillePlateau -nbBijouxSurLePlateau)) + facteurAspirationBijoux *beta * (nbJewelAspire) + nbAction*coutAction));
 	}
 
+	public double getSimulated(Action action) {
+
+		int nbDirtAspire2=nbDirtAspire;
+		int nbDirtGenere2=nbDirtGenere;
+		int nbAction2 = nbAction;
+		int nbJewelRamasse2=nbJewelRamasse;
+		int nbJewelGenere2=nbJewelGenere;
+		int nbJewelAspire2=nbJewelAspire;
+
+
+
+		switch(action) {
+
+			case VACUUM_DUST:
+
+				nbDirtAspire2++;
+				nbDirtGenere2--;
+				nbAction2++;
+				break;
+
+			case VACUUM_JEWELRY:
+
+				nbJewelAspire2++;
+				nbJewelGenere2--;
+				nbAction2++;
+				break;
+
+			case GATHER_JEWELRY:
+
+				nbJewelRamasse2++;
+				nbJewelGenere2--;
+				nbAction2++;
+				break;
+
+			case MOVE_DOWN:
+				nbAction2++;
+				break;
+
+			case MOVE_LEFT:
+				nbAction2++;
+				break;
+
+			case MOVE_RIGHT:
+				nbAction2++;
+				break;
+
+			case MOVE_UP:
+				nbAction2++;
+				break;
+
+			default:
+				nbAction2++;
+				break;
+		}
+
+
+		int nbPoussiereSurLePlateau = (nbDirtGenere-nbDirtAspire);
+		int nbBijouxSurLePlateau = (nbJewelGenere-nbJewelAspire-nbJewelRamasse);
+		int taillePlateau = manorSize*manorSize;
+		return 100 * (
+				(alpha*(taillePlateau-nbPoussiereSurLePlateau) + beta * (taillePlateau -nbBijouxSurLePlateau)) /
+						((alpha*taillePlateau + beta * (taillePlateau -nbBijouxSurLePlateau)) + facteurAspirationBijoux *beta * (nbJewelAspire) + nbAction*coutAction));
+	}
 	@Override
 	public void update(Observable observable, Object o) {
 		Event event = (Event) o;

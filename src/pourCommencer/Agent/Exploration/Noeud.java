@@ -8,6 +8,7 @@ import java.util.HashMap;
 public class Noeud {
     private Noeud parent;
     private int pathCost;
+    private int heuristique;
     HashMap<Noeud,Action> successor;
     EnvState environnement;
     private int profondeur;
@@ -63,6 +64,14 @@ public class Noeud {
     }
 
     private Position positionRobot;
+
+    public int getHeuristique() {
+        return heuristique;
+    }
+
+    public void setHeuristique(int heuristique) {
+        this.heuristique = heuristique;
+    }
 
     public Noeud(Noeud parent, EnvState environnement, int pathCost, int profondeur,Position position) {
         this.parent = parent;

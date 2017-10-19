@@ -11,7 +11,7 @@ public class Manor extends Environment {
     public Manor(PerformanceCounter perfCounter, int manorSize, Position caseDepartRobot) {
         super(perfCounter);
         this.state = new EnvState(manorSize);
-
+        this.state.setPerfCounter(perfCounter);
         updateAgentPosition(caseDepartRobot);
     }
 

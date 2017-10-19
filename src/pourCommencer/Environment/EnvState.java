@@ -4,6 +4,15 @@ package pourCommencer.Environment;
 public class EnvState {
 	private int size;
 	private Case[][] cases;
+	private PerformanceCounter perfCounter;
+
+	public PerformanceCounter getPerfCounter() {
+		return perfCounter;
+	}
+
+	public void setPerfCounter(PerformanceCounter perfCounter) {
+		this.perfCounter = perfCounter;
+	}
 
 	public EnvState(int size) {
 		this.size = size;
