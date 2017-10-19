@@ -1,6 +1,6 @@
 package pourCommencer;
 
-import pourCommencer.Agent.AgentExploStupide;
+import pourCommencer.Agent.AgentExploPathWithMultiObject;
 import pourCommencer.Agent.Robot;
 import pourCommencer.Environment.*;
 import pourCommencer.Vue.VueTexte;
@@ -13,13 +13,14 @@ public class Main {
         // Object that allows to compute performance measures
         PerformanceCounter perfCounter = new PerfCounterImpl(manorSize);
         // The environment
-        Environment env = new Manor(perfCounter, manorSize, new Position(5, 5));
+        Environment env = new Manor(perfCounter, manorSize, new Position(0, 0));
         // The simulator places random dust and jewel in the environment
-        /*Environment env = new Manor(perfCounter, manorSize, new Position(0, 0));
-        env.getState().getCase(new Position(9,9)).addEnvObject(EnvObject.JEWELRY);
-        env.getState().getCase(new Position(3,3)).addEnvObject(EnvObject.DUST);*/
+        //Environment env = new Manor(perfCounter, manorSize, new Position(0, 0));
+
         EnvSimulator envSimulator = new EnvSimulator(env);
-        Robot robot = new AgentExploStupide(env);
+        env.placeJewelAt(new Position(9,9));
+        env.placeDustAt(new Position(3,3));
+        Robot robot = new AgentExploPathWithMultiObject(env);
         // The console GUI
         VueTexte vueTexte = new VueTexte(env, robot);
 
