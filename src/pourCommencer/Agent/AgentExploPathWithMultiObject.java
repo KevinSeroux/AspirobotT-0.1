@@ -18,7 +18,7 @@ import static pourCommencer.Agent.SensorVision.*;
  */
 public class AgentExploPathWithMultiObject extends Robot {
 
-    private static final int PROFONDEUR_MAX = 20; // <-------------- ici aussi
+    private static final int PROFONDEUR_MAX = 10; // <-------------- ici aussi
 
     public AgentExploPathWithMultiObject(Environment env) {
         super(env);
@@ -41,6 +41,7 @@ public class AgentExploPathWithMultiObject extends Robot {
         // Then, place some observations between actions
         while (true) {
             if(doObserve())
+            //if(mentalState.intentions.isEmpty())
                 mentalState = buildMentalState();
 
             executeAction(mentalState.intentions.poll());
@@ -98,13 +99,17 @@ public class AgentExploPathWithMultiObject extends Robot {
         if(trouve){
             LinkedList<Action> todo = new LinkedList<>();
             node = bestMoveToDo(origine);
-            while(node != origine){
-                todo.push(node.getParent().getSuccessor().get(node));
-                node = node.getParent();
-            }
-            for (Action a:todo
-                    ) {
-                System.out.println("Action : "+a);
+            if(node != origine) {
+                while (node != origine) {
+                    todo.push(node.getParent().getSuccessor().get(node));
+                    node = node.getParent();
+                }
+                for (Action a : todo
+                        ) {
+                    System.out.println("Action : " + a);
+                }
+            }else {
+                //pas d'amélioration possible, on ne fait rien
             }
             return todo;
         }else{
@@ -153,7 +158,7 @@ public class AgentExploPathWithMultiObject extends Robot {
                     if(a == Action.GATHER_JEWELRY && isCaseJewelAt(node.getEnvironnement(),node.getPositionRobot())){
                         //performance+=Action.VACUUM_DUST.getPerf() - Action.VACUUM_DUST.getCoutAction(); //TODO
                         performance+=20;
-                        if(env != node.getEnvironnement()) env=new EnvState(env);
+                        if(env == node.getEnvironnement()) env=new EnvState(env);
                         env.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.JEWELRY);
                     }
                     futurePosition = new Position(node.getPositionRobot().x,node.getPositionRobot().y);

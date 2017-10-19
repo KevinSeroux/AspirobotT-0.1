@@ -1,5 +1,6 @@
 package pourCommencer;
 
+import pourCommencer.Agent.AgentExploMonoObject;
 import pourCommencer.Agent.AgentExploPathWithMultiObject;
 import pourCommencer.Agent.Robot;
 import pourCommencer.Environment.*;
@@ -20,7 +21,7 @@ public class Main {
         EnvSimulator envSimulator = new EnvSimulator(env);
         env.placeJewelAt(new Position(9,9));
         env.placeDustAt(new Position(3,3));
-        Robot robot = new AgentExploPathWithMultiObject(env);
+        Robot robot = new AgentExploMonoObject(env);
         // The console GUI
         VueTexte vueTexte = new VueTexte(env, robot);
 

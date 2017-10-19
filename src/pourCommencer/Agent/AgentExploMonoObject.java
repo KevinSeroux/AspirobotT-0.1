@@ -124,7 +124,7 @@ public class AgentExploMonoObject extends Robot {
                 trouve = true;
                 break; //return node
             }
-            if (node.getProfondeur() < PROFONDEUR_MAX)
+            if (node.getProfondeur() < PROFONDEUR_MAX && node.getPerformance() > -10) //<-------------------------------- changé ici
                 fringe.addAll(expand(node));
         }
         if(trouve){
