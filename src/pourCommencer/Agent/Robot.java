@@ -1,9 +1,11 @@
 package pourCommencer.Agent;
+import pourCommencer.Config;
 import pourCommencer.Environment.*;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
+import static pourCommencer.Config.actionTime;
 
 /**
  * Classe facade implementant le minimum pour que l'agent vive
@@ -193,7 +195,7 @@ public class Robot implements Runnable {
 
         // Simulate the time to do one action
         try {
-            Thread.sleep(1000);
+            Thread.sleep(actionTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

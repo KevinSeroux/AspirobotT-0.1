@@ -2,13 +2,11 @@ package pourCommencer.Environment;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import static pourCommencer.Config.maxGenerationTime;
+import static pourCommencer.Config.probabilityGenerateDust;
+
 // This class places random dust and jewel in the environment
 public class EnvSimulator implements Runnable {
-    private final static double probabilityGenerateDust = 0.9;
-    // The probability to generate jewel is: 1 - above
-
-    private final static int maxGenerationTimeMs = 5000;
-
     private ThreadLocalRandom random;
     private _Environment env;
 
@@ -28,7 +26,7 @@ public class EnvSimulator implements Runnable {
     }
 
     private void waitNextGeneration() {
-        long nextGenerationTime = random.nextInt(maxGenerationTimeMs);
+        long nextGenerationTime = random.nextLong(maxGenerationTime);
 
         try {
             Thread.sleep(nextGenerationTime);
