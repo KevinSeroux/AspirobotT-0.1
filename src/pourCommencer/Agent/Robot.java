@@ -1,5 +1,4 @@
 package pourCommencer.Agent;
-
 import pourCommencer.Agent.Exploration.Noeud;
 import pourCommencer.Environment.*;
 
@@ -10,20 +9,24 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.Math.abs;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
+import static pourCommencer.Config.actionTime;
 
 /**
  * Classe facade implementant le minimum pour que l'agent vive
  * Pour des algorithmes plus avancer, se repporter aux classes filles
  */
 public class Robot implements Runnable {
-    protected _PerformanceCounter perfCounter;
-    protected ExplorationFrequency exploFrequency;
-    private EffecteurArm bras;
-    private EffecteurAspiration aspiration;
-    private EffecteurMouvement mouvement;
-    protected SensorVision vision;
+
+
     // Count of times the agent has asked himself if he should observe
     private int observationCounter;
+
+    protected  _PerformanceCounter perfCounter;
+    protected ExplorationFrequency exploFrequency;
+    protected EffecteurArm bras;
+    protected EffecteurAspiration aspiration;
+    protected EffecteurMouvement mouvement;
+    protected SensorVision vision;
 
     public Robot(Environment env) {
         /* L'agent n'est supposé interagir avec l'environement
@@ -81,16 +84,10 @@ public class Robot implements Runnable {
         MentalState mentalState = new MentalState();
         while(true) {
             mentalState.beliefs = vision.snapshotState(); //Observation
-//            mentalState.goal = chooseRandomDesire(mentalState.beliefs); //Choix stupid de but
-//            if (mentalState.goal != MentalState.Desire.DEFAULT) {
-//            if(doObserve())
-//                mentalState = buildMentalState();
-//
+
             EnvState env = new EnvState(mentalState.beliefs);
             Noeud origine = new Noeud(null, env,0, 0,getAgentPosition(env));
             mentalState.intentions = BuildTree(mentalState,origine,env);
-
-//            }
 
             while (!mentalState.intentions.isEmpty())
                 executeAction(mentalState.intentions.poll());
@@ -103,13 +100,8 @@ public class Robot implements Runnable {
     public LinkedList<Action> BuildTree(MentalState m, Noeud origine, EnvState e1)
     {
         Noeud goal = findBestGoal(e1,origine);
-//        graph = new LinkedList<Noeud>();
         LinkedList<Action> out = new LinkedList<Action>();
         EnvState e = new EnvState(e1);
-        Position initiale = getAgentPosition(e);
-//        Noeud origine = new Noeud(null, e,0, 0,initiale);;
-//        origine.getEnvironnement().getCase(initiale).removeEnvObject(EnvObject.ROBOT);
-//        graph.add(origine);
         Noeud node = origine;
         EnvState enew = null;
         Noeud newNode = null;
@@ -131,10 +123,8 @@ public class Robot implements Runnable {
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().y - node.getPositionRobot().y) + abs(newNode.getPositionRobot().x - node.getPositionRobot().x));
-//                graph.add(newNode);
                 out.add(counter,Action.MOVE_DOWN);
                 counter++;
-                //graph=BuildTree(m,newNode,graph,enew);
                 node= newNode;
             }
 
@@ -150,10 +140,8 @@ public class Robot implements Runnable {
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().y - node.getPositionRobot().y) + abs(newNode.getPositionRobot().x - node.getPositionRobot().x));
-//                graph.add(newNode);
                 out.add(counter,Action.MOVE_UP);
                 counter++;
-                // graph=BuildTree(m,newNode,graph,enew);
                 node= newNode;
             }
 
@@ -169,8 +157,6 @@ public class Robot implements Runnable {
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().y - node.getPositionRobot().y) + abs(newNode.getPositionRobot().x - node.getPositionRobot().x));
-//                graph.add(newNode);
-                //graph=BuildTree(m,newNode,graph,enew);
                 out.add(counter,Action.MOVE_LEFT);
                 counter++;
                 node= newNode;
@@ -188,10 +174,8 @@ public class Robot implements Runnable {
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().y - node.getPositionRobot().y) + abs(newNode.getPositionRobot().x - node.getPositionRobot().x));
-//                graph.add(newNode);
                 out.add(counter,Action.MOVE_RIGHT);
                 counter++;
-                //  graph=BuildTree(m,newNode,graph,enew);
                 node= newNode;
             }
 
@@ -204,19 +188,11 @@ public class Robot implements Runnable {
                 enew = new EnvState(e);
                 enew.getCase(node.getPositionRobot()).removeEnvObject(EnvObject.ROBOT);
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
-
-                if (this.vision.doesCaseHaveJewelery(node.getEnvironnement(), node.getPositionRobot())) {
-                    pathcost += (int) enew.getPerfCounter().getSimulated(Action.GATHER_JEWELRY);
-                    enew.getCase(newPosition).removeEnvObject(EnvObject.JEWELRY);
-                    out.add(counter, Action.GATHER_JEWELRY);
-                    counter++;
-                    action = true;
-                } else pathcost = node.getPathCost() + 1;
-
+                out.add(counter, Action.GATHER_JEWELRY);
+                counter++;
+                action = true;
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().x - node.getPositionRobot().x) + abs(newNode.getPositionRobot().y - node.getPositionRobot().y));
-//            graph.add(newNode);
-                //  graph=BuildTree(m,newNode,graph,enew);
 
                 node = newNode;
             }
@@ -232,23 +208,8 @@ public class Robot implements Runnable {
                 out.add(counter,Action.VACUUM_DUST);
                 counter++;
                 action=true;
-//                if (this.vision.isCaseDirtyAt(node.getEnvironnement(), node.getPositionRobot())) {
-////                    pathcost += (int) enew.getPerfCounter().getSimulated(Action.VACUUM_DUST);
-//                    enew.getCase(newPosition).removeEnvObject(EnvObject.DUST);
-//                    out.add(counter,Action.VACUUM_DUST);
-//                    action=true;
-//                } else {
-//                    if (this.vision.doesCaseHaveJewelery(node.getEnvironnement(), node.getPositionRobot())) {
-//                        pathcost += (int) enew.getPerfCounter().getSimulated(Action.VACUUM_JEWELRY);
-//                        enew.getCase(newPosition).removeEnvObject(EnvObject.JEWELRY);
-//                        out.add(counter,Action.VACUUM_JEWELRY);
-//                        action=true;
-//                    } else pathcost = node.getPathCost() + 1;
-//                }
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().x - node.getPositionRobot().x) + abs(newNode.getPositionRobot().y - node.getPositionRobot().y));
-//                graph.add(newNode);
-                // graph=BuildTree(m,newNode,graph,enew);
                 node= newNode;
             }
 
@@ -263,7 +224,6 @@ public class Robot implements Runnable {
 
     private Noeud findBestGoal(EnvState e, Noeud start) {
         int closestdist = 100;
-        Position newPosition;
         Noeud goal = null;
         int pathcost;
         EnvState enew;
@@ -426,7 +386,7 @@ public class Robot implements Runnable {
 
         // Simulate the time to do one action
         try {
-            Thread.sleep(1000);
+            Thread.sleep(actionTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

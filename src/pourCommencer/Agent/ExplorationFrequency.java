@@ -2,12 +2,12 @@ package pourCommencer.Agent;
 
 import java.util.concurrent.ThreadLocalRandom;
 
+import static pourCommencer.Config.learnFailuresCount;
+import static pourCommencer.Config.learnMeasuresCount;
+
 /* This class allows the agent to learn to adjust
  * the exploration frequency */
 public class ExplorationFrequency {
-	// How many measures for each frequency
-	private static int MEASURE_COUNT = 5;
-
 	private ThreadLocalRandom random;
 
 	private double bestExploFreq;
@@ -20,7 +20,7 @@ public class ExplorationFrequency {
 	private int remainingFailCount;
 
 	public ExplorationFrequency(double initialValue) {
-		remainingFailCount = 3;
+		remainingFailCount = learnFailuresCount;
 		bestExploFreq = randomExploFreq = initialValue;
 		bestExploFreqSlope = Double.NEGATIVE_INFINITY;
 		random = ThreadLocalRandom.current();
@@ -59,7 +59,7 @@ public class ExplorationFrequency {
 			if(remainingLearnExample == 0) {
 				// If the random freq gave better results, keep it
 				updateBestFrequency();
-				randomExploFreq = random.nextDouble(0.1, 1);
+				randomExploFreq = random.nextDouble(0.01, 1);
 				reset();
 			}
 		}
@@ -79,7 +79,7 @@ public class ExplorationFrequency {
 	}
 
 	private void reset() {
-		remainingLearnExample = MEASURE_COUNT;
+		remainingLearnExample = learnMeasuresCount;
 		randomExploSlope = 0;
 	}
 
@@ -93,7 +93,6 @@ public class ExplorationFrequency {
 		};
 
 		ExplorationFrequency exploFreq = new ExplorationFrequency(1);
-		exploFreq.MEASURE_COUNT = 5;
 		exploFreq.remainingFailCount = 2;
 		double expectedBestFreq = Double.NEGATIVE_INFINITY;
 

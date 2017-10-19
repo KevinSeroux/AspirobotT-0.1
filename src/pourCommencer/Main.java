@@ -29,8 +29,8 @@ public class Main {
         Robot robot = null;
         try {
             Method m = AgentExploMonoObject.class.getMethod("explorationLargeur",parameterTypes);
-            robot = new AgentExploMonoObject(env,m);
-            //robot = new Robot(env);
+            //robot = new AgentExploMonoObject(env,m);
+            robot = new Robot(env);
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
         }
