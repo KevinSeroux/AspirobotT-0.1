@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.Math.abs;
+import static java.lang.Math.incrementExact;
 import static pourCommencer.Agent.SensorVision.getAgentPosition;
 import static pourCommencer.Config.actionTime;
 
@@ -85,7 +86,13 @@ public class Robot implements Runnable {
             Noeud origine = new Noeud(null, env,0, 0,getAgentPosition(env));
 
             Noeud goal = findBestGoal(env,origine);
-            mentalState.intentions = BuildTree(mentalState,origine,env,goal);
+            if(goal!=null){
+                mentalState.intentions = BuildTree(mentalState,origine,env,goal);
+            }else{
+                //DO NOTHING
+                mentalState.intentions = new LinkedList<>();
+            }
+
 
             while (!mentalState.intentions.isEmpty())
                 executeAction(mentalState.intentions.poll());

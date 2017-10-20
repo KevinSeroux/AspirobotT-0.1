@@ -21,8 +21,8 @@ public class Main {
         //Environment env = new Manor(perfCounter, manorSize, new Position(0, 0));
 
         EnvSimulator envSimulator = new EnvSimulator(env);
-        env.placeJewelAt(new Position(9,9));
-        env.placeDustAt(new Position(3,3));
+        //env.placeJewelAt(new Position(9,9));
+        //env.placeDustAt(new Position(3,3));
 
         Class[] parameterTypes = new Class[1];
         parameterTypes[0] = MentalState.class;

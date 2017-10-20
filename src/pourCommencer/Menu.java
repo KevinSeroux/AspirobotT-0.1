@@ -18,7 +18,7 @@ public class Menu {
         // Object that allows to compute performance measures
         PerformanceCounter perfCounter = new PerfCounterImpl(manorSize);
         // The environment
-        Environment env = new Manor(perfCounter, manorSize, new Position(0, 0));
+        Environment env = new Manor(perfCounter, manorSize, new Position(5, 5));
         // The simulator places random dust and jewel in the environment
         //Environment env = new Manor(perfCounter, manorSize, new Position(0, 0));
 
@@ -36,7 +36,7 @@ public class Menu {
                 "2 - Exploration informée\n" +
                 "Votre choix ? ";
 
-        String menuNonInformeeType = "Deux manières d'explorer de manière non informée ont été faite.\n" +
+        String menuNonInformeeType = "Deux manières d'explorer de manière non informée ont été réalisées.\n" +
                 "1 - Exploration par sous-but simple, de type \"Chercher la poussiere la plus proche\" \nqui va d'un point A à un point B (le plus proche pour réaliser son but)\n" +
                 "2 - Exploration dont le but est de maximiser sa mesure de performance,\n en cherchant la suite d'actions lui permettant de gagner le plus de points (via une exploration en largeur)\n" +
                 "Votre choix ?";
@@ -113,7 +113,7 @@ public class Menu {
                         }break;
                     }break;
                 case 2:
-                    System.out.println("Pas encore implémenté dommage !");
+                    robot = new Robot(env);
                     break;
                 default:
                     continue;
