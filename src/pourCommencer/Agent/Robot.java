@@ -121,7 +121,7 @@ public class Robot implements Runnable {
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().y - node.getPositionRobot().y) + abs(newNode.getPositionRobot().x - node.getPositionRobot().x));
-                out.add(counter,Action.MOVE_DOWN);
+                out.add(counter,Action.MOVE_RIGHT);
                 counter++;
                 node= newNode;
             }
@@ -138,7 +138,7 @@ public class Robot implements Runnable {
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().y - node.getPositionRobot().y) + abs(newNode.getPositionRobot().x - node.getPositionRobot().x));
-                out.add(counter,Action.MOVE_UP);
+                out.add(counter,Action.MOVE_LEFT);
                 counter++;
                 node= newNode;
             }
@@ -155,7 +155,7 @@ public class Robot implements Runnable {
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().y - node.getPositionRobot().y) + abs(newNode.getPositionRobot().x - node.getPositionRobot().x));
-                out.add(counter,Action.MOVE_LEFT);
+                out.add(counter,Action.MOVE_UP);
                 counter++;
                 node= newNode;
             }
@@ -172,14 +172,15 @@ public class Robot implements Runnable {
                 enew.getCase(newPosition).addEnvObject(EnvObject.ROBOT);
                 newNode = new Noeud(node, enew, pathcost, profondeur, newPosition);
                 newNode.setHeuristique(node.getHeuristique() + abs(newNode.getPositionRobot().y - node.getPositionRobot().y) + abs(newNode.getPositionRobot().x - node.getPositionRobot().x));
-                out.add(counter,Action.MOVE_RIGHT);
+                out.add(counter,Action.MOVE_DOWN);
                 counter++;
                 node= newNode;
             }
 
 
 
-            if(vision.doesCaseHaveJewelery(node.getEnvironnement(),new Position(node.getPositionRobot().y,node.getPositionRobot().x)) && node.getPositionRobot().x == goal.getPositionRobot().x && node.getPositionRobot().y == goal.getPositionRobot().y) {
+            if(vision.doesCaseHaveJewelery(node.getEnvironnement(),node.getPositionRobot())
+                    && node.getPositionRobot().x == goal.getPositionRobot().x && node.getPositionRobot().y == goal.getPositionRobot().y) {
                 //Gather
                 newPosition = new Position(node.getPositionRobot().x, node.getPositionRobot().y);
                 profondeur = node.getProfondeur() + 1;
@@ -195,7 +196,8 @@ public class Robot implements Runnable {
                 node = newNode;
             }
 
-            if(vision.isCaseDirtyAt(node.getEnvironnement(),new Position(node.getPositionRobot().y,node.getPositionRobot().x)) && node.getPositionRobot().x == goal.getPositionRobot().x && node.getPositionRobot().y == goal.getPositionRobot().y) {
+            if(vision.isCaseDirtyAt(node.getEnvironnement(),node.getPositionRobot())
+                    && node.getPositionRobot().x == goal.getPositionRobot().x && node.getPositionRobot().y == goal.getPositionRobot().y) {
 
                 //VACUM
                 newPosition = new Position(node.getPositionRobot().x, node.getPositionRobot().y);
@@ -231,7 +233,7 @@ public class Robot implements Runnable {
             for (int j =0;j<10;j++)
             {
 
-                if( vision.doesCaseHaveJewelery(e,new Position(j,i)) && (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y)) < closestdist )
+                if( vision.doesCaseHaveJewelery(e,new Position(i,j)) && (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y)) < closestdist )
                 {
                     closestdist = (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y));
                     profondeur = closestdist+1;
@@ -242,7 +244,7 @@ public class Robot implements Runnable {
                     goal = new Noeud(start,enew,pathcost,profondeur,new Position(i,j));
                 }
                 else
-                if( vision.isCaseDirtyAt(e,new Position(j,i)) && (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y)) < closestdist )
+                if( vision.isCaseDirtyAt(e,new Position(i,j)) && (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y)) < closestdist )
                 {
                     closestdist = (abs(i-start.getPositionRobot().x) + abs(j-start.getPositionRobot().y));
                     profondeur = closestdist+1;
