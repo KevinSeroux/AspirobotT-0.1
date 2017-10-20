@@ -55,13 +55,15 @@ public class AgentExploMonoObject extends Robot {
 
         // Then, place some observations between actions
         while (true) {
-            if(doObserve())
+            if(mentalState.intentions.isEmpty()|| doObserve()){
                 mentalState = buildMentalState();
+            }
 
             executeAction(mentalState.intentions.poll());
 
             // Notify the frequency learning system of the new perf
             exploFrequency.addMeasure(perfCounter.get());
+
         }
     }
 
@@ -200,7 +202,9 @@ public class AgentExploMonoObject extends Robot {
      * @return la liste des actions à effectuer
      * @throws ExplorationException
      */
-    public LinkedList<Action> explorationDepthLimited(MentalState m) throws ExplorationException {
+    //Fonctionne pas car pas optimal (avec la représentation du monde dans expand
+
+   /* public LinkedList<Action> explorationDepthLimited(MentalState m) throws ExplorationException {
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
         Noeud origine = new Noeud(null, e,0, 0,initiale, 0); //Position actuelle du robot ?
@@ -224,7 +228,7 @@ public class AgentExploMonoObject extends Robot {
             System.out.println("Fail exploration");
             throw new ExplorationException();
         }
-    }
+    }*/
 
     /**
      * Permet de faire la recherche en profondeur limitée récursive
@@ -264,7 +268,9 @@ public class AgentExploMonoObject extends Robot {
      * @param m l'état mental de l'agent
      * @return la listes des actions à faire
      * @throws ExplorationException
-     */
+     * */
+    //Fonctionne pas car pas optimal (avec la représentation du monde dans expand
+    /*
     public LinkedList<Action> explorationDepthFirstSearch(MentalState m) throws ExplorationException {
         EnvState e = new EnvState(m.beliefs);
         Position initiale = getAgentPosition(e);
@@ -302,7 +308,7 @@ public class AgentExploMonoObject extends Robot {
         }else{
             throw new ExplorationException();
         }
-    }
+    }*/
 
 
     /**

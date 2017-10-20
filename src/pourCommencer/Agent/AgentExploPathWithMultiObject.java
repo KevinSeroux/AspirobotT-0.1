@@ -41,9 +41,9 @@ public class AgentExploPathWithMultiObject extends Robot {
 
         // Then, place some observations between actions
         while (true) {
-            if(doObserve())
-            //if(mentalState.intentions.isEmpty())
+            if(mentalState.intentions.isEmpty()|| doObserve()){
                 mentalState = buildMentalState();
+            }
 
             executeAction(mentalState.intentions.poll());
 

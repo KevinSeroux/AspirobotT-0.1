@@ -44,8 +44,6 @@ public class Menu {
         String menuNonInformeeOneObject = "Plusieurs algorithmes sont disponibles pour ce type d'exploration.\nLequel souhaitez-vous utiliser ?\n" +
                 "1 - Exploration en largeur\n" +
                 "2 - Exploration iterative en profondeur\n" +
-                "3 - Exploration en profondeur limitée\n" +
-                "4 - Exploration en profondeur\n" +
                 "Votre choix ?";
 
 
@@ -91,21 +89,12 @@ public class Menu {
                                             m = AgentExploMonoObject.class.getMethod("explorationIterativeDeepening", parameterTypes);
                                             robot = new AgentExploMonoObject(env,m);
                                             break;
-                                        case 3:
-                                            m = AgentExploMonoObject.class.getMethod("explorationDepthLimited", parameterTypes);
-                                            robot = new AgentExploMonoObject(env,m);
-                                            break;
-                                        case 4:
-                                            m = AgentExploMonoObject.class.getMethod("explorationDepthFirstSearch", parameterTypes);
-                                            robot = new AgentExploMonoObject(env,m);
-                                            break;
                                         default:
                                             continue;
                                     }
                                     break;
                                 }break;
                             case 2:
-                                //m = AgentExploPathWithMultiObject.class.getMethod("explorationLargeur",parameterTypes);
                                 robot = new AgentExploPathWithMultiObject(env);
                                 break;
                             default:
